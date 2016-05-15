@@ -52,7 +52,6 @@ Well, I kind of am afraid that my filterscript causes performance / memory probl
 
 - Better Documentation
 - Improve Performance (Memory usage, cpu time)
-- Replacing dini with y_ini
 
 ## Version:
 1.3.0.15 (15.05.2016)
