@@ -1,7 +1,7 @@
 //Log Filterscript by [Bios]Marcel
 //If you need any help at working on this script you can message me on forum.sa-mp.com
 #define FILTERSCRIPT
-
+//TESTCOMMENT
 //INCLUDES
 #include <a_samp>
 #include <Directory>
