@@ -5,7 +5,7 @@ Hello People,
 Thanks to the people that created the dependencies that i use(sscanf, Directory plugin, 
 dini(will be replaced with y_ini soon) and zcmd).
 
-<font style="text-decoration: underlined; color: red;" font-size="7">Description:</font>
+<span style="text-decoration: underlined; color: red; font-size: 20px;">Description:</span>
 
 This Filterscript is capable of logging:
 
