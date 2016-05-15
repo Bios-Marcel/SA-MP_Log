@@ -42,8 +42,6 @@ And if u want to, you can also send in ideas or requests.
 
 filenameformat: log-bug-day-month-year / log-idea-day-month-year / log-request-day-month-year
 
-You are asking yourself why am i doing this? Simply cause i do sometimes not check the forum but always check my pc(dropbox).
-
 ## Problems:
 
 Well, I kind of am afraid that my filterscript causes performance / memory problems since i a lot of files are being opened and closed very often, so i'd be pleased if the people who use this tell me if it causes problems, if it does i can create an extra version for u that has less possibilites but wont lower the performance (only the memory ^^) like hell.
