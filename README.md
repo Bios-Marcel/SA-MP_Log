@@ -49,11 +49,11 @@ filenameformat: log-bug-day-month-year / log-idea-day-month-year / log-request-d
 Well, I kind of am afraid that my filterscript causes performance / memory problems since i a lot of files are being opened and closed very often, so i'd be pleased if the people who use this tell me if it causes problems, if it does i can create an extra version for u that has less possibilites but wont lower the performance (only the memory ^^) like hell.
 
 ## Future Plans:
-[LIST]
-[*]Better Documentation
-[*]Improve Performance (Memory usage, cpu time)
-[*]Replacing dini with y_ini
-[/LIST]
+
+- Better Documentation
+- Improve Performance (Memory usage, cpu time)
+- Replacing dini with y_ini
+
 
 ## Download:
 
