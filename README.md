@@ -1,9 +1,11 @@
 Hello People,
 
-[B]First of all, i am just renewing my old thread, i have changed a lot of things and kinda want a new thread, and also the thread name pisses me off.[/B]
-
-Thanks to the people that created the dependencies that i use(sscanf, Directory plugin, 
-dini(will be replaced with y_ini soon) and zcmd).
+Thanks to the creators of:
+- zcmd
+- sscanf
+- dini
+- Directory plugin
+- SA-MP
 
 ## Description:
 
