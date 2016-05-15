@@ -54,13 +54,6 @@ Well, I kind of am afraid that my filterscript causes performance / memory probl
 - Improve Performance (Memory usage, cpu time)
 - Replacing dini with y_ini
 
-
-## Download:
-
-Note: The package does include all plugins expect the sscanf.so u gotta get that by yourself and the .dll that i put in there is still version 2.7 (added 2.8.2).If you don't want to download the package, you can still download here on GitHub.
-
-[AMX & PWN & Includes & Plugin](https://dl.dropboxusercontent.com/u/89362253/Log.zip)
-
 ## Version:
 1.3.0.15 (15.05.2016)
 
