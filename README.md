@@ -9,19 +9,19 @@ dini(will be replaced with y_ini soon) and zcmd).
 
 This Filterscript is capable of logging:
 
-[LIST]
-[*]Death (playerid,killerid,reason)
-[*]Shooting
-[*]Chat
-[*]Commands
-[*]Enter/Exit Vehicle
-[*]PlayerTake(Deal)Damage
-[*]Interior Change(Oldinterior, NewInterior)
-[*]Connect/Disconnect(name,Ip,reason);
-[*]Rcon Login(If the Player enters a wrong password the password would be logged)
-[*]RconCommand(Only Logs the Command)
-[*]PlayerPositionLog(Every 1.5 seconds it logs your position(It has a configurable interval, but the 1.5 second is the default))
-[/LIST]
+<ul>
+<li>Death (playerid,killerid,reason)</li>
+<li>Shooting</li>
+<li>Chat</li>
+<li>Commands</li>
+<li>Enter/Exit Vehicle</li>
+<li>PlayerTake(Deal)Damage</li>
+<li>Interior Change(Oldinterior, NewInterior)</li>
+<li>Connect/Disconnect(name,Ip,reason)</li>
+<li>Rcon Login(If the Player enters a wrong password the password would be logged)</li>
+<li>RconCommand(Only Logs the Command)</li>
+<li>PlayerPositionLog(Every 1.5 seconds it logs your position(It has a configurable interval, but the 1.5 second is the default))</li>
+</ul>
 
 [COLOR="Red"][SIZE="7"][U]Installation:[/U][/SIZE][/COLOR]
 
