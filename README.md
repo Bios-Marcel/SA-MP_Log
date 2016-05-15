@@ -9,9 +9,9 @@ dini(will be replaced with y_ini soon) and zcmd).
 
 This Filterscript is capable of logging:
 
-<ul>
-<li>Death (playerid,killerid,reason)</li>
-<li>Shooting</li>
+
+- Death (playerid,killerid,reason)
+- Shooting
 <li>Chat</li>
 <li>Commands</li>
 <li>Enter/Exit Vehicle</li>
