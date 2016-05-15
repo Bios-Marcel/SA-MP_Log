@@ -38,7 +38,7 @@ Single Commands for all settings are in developement (I am a bit lazy that's why
 
 Well, i found tons of bugs, i fixed a lot of them so pls always update the script.
 
-If you find any Bugs please create a textfile that includes the informations about the bug and upload it here: [Dropbox File Request Link](https://www.dropbox.com/request/9RriFzieyZ5uyTkTKNXF)(No account neccessary).
+If you find any Bugs please create a textfile that includes the informations about the bug and upload it here: [Dropbox File Request Link](https://www.dropbox.com/request/9RriFzieyZ5uyTkTKNXF)(No account neccessary) or here [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
 
 And if u want to, you can also send in ideas or requests.
 
