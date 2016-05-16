@@ -1,5 +1,5 @@
 //Log Filterscript by [Bios]Marcel
-//If you need any help at working on this script you can message me on forum.sa-mp.com
+//If you need any help at working on this script you can message me on forum.sa-mp.com (http://forum.sa-mp.com/member.php?u=172637)
 #define FILTERSCRIPT
 
 //INCLUDES
