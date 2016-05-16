@@ -11,7 +11,6 @@
 #include <sscanf2>
 
 //PUBLIC VARIABLES
-new VERSION[9] = "1.3.0.16"; //DO NOT CHANGE THIS, IT TELLS U IF THERE IS A NEWER VERSION!
 new savetime = 0;
 new PositionLogging;
 new ChatLogging;
@@ -27,7 +26,6 @@ new CarExitLogging;
 new RconCommandLogging;
 new SaveMode;
 new Timer[MAX_PLAYERS];
-new gPath[70];
 
 //DEFINES
 #define LOGMENU 1
@@ -134,14 +132,12 @@ public OnRconLoginAttempt(ip[], password[], success)
 {
 	if(RconLoginLogging)
 	{
-	    print("Reached outer");
 		new IP[16];
 		for(new i=0; i<MAX_PLAYERS; i++)
 		{
 			GetPlayerIp(i, IP, 16);
 			if(!strcmp(ip, IP, true))
 			{
-			    print("Reached inner");
 				logRconLogin(i,success ? true : false,ip,password);
 				break;
 			}
@@ -261,6 +257,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
+	new gPath[70];
 	switch(dialogid)
 	{
 		case LOGMENU:
@@ -1758,6 +1755,7 @@ public LogCar(playerid)
 forward MyHttpResponse(index, response_code, data[]);
 public MyHttpResponse(index, response_code, data[])
 {
+	new VERSION[9] = "1.3.0.16";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
