@@ -11,7 +11,7 @@
 #include <sscanf2>
 
 //PUBLIC VARIABLES
-new VERSION[9] = "1.3.0.15"; //DO NOT CHANGE THIS, IT TELLS U IF THERE IS A NEWER VERSION!
+new VERSION[9] = "1.3.0.16"; //DO NOT CHANGE THIS, IT TELLS U IF THERE IS A NEWER VERSION!
 new savetime = 0;
 new PositionLogging;
 new ChatLogging;
@@ -134,13 +134,15 @@ public OnRconLoginAttempt(ip[], password[], success)
 {
 	if(RconLoginLogging)
 	{
+	    print("Reached outer");
 		new IP[16];
 		for(new i=0; i<MAX_PLAYERS; i++)
 		{
 			GetPlayerIp(i, IP, 16);
 			if(!strcmp(ip, IP, true))
 			{
-				RconAttemptLog(i,success ? true : false,ip,password);
+			    print("Reached inner");
+				logRconLogin(i,success ? true : false,ip,password);
 				break;
 			}
 		}
@@ -150,7 +152,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 
 public OnRconCommand(cmd[])
 {
-	RCommand(cmd);
+	logRconCommand(cmd);
 	return 1;
 }
 
@@ -167,8 +169,8 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(ShootingLogging)
 	{
-		ShootingLog(playerid,issuerid,amount,weaponid,CULPRIT);
-		ShootingLog(issuerid,playerid,amount,weaponid,VICTIM);
+		logShooting(playerid,issuerid,amount,weaponid,CULPRIT);
+		logShooting(issuerid,playerid,amount,weaponid,VICTIM);
 	}
 	return 1;
 }
@@ -189,7 +191,7 @@ public OnPlayerConnect(playerid)
 	}
 	if(ConnectLogging)
 	{
-		ConnectLog(playerid);
+		logConnect(playerid);
 	}
 	return 1;
 }
@@ -198,7 +200,7 @@ public OnPlayerDisconnect(playerid, reason)
 {
 	if(DisconnectLogging)
 	{
-		DisconnectLog(playerid, reason);
+		logDisconnect(playerid, reason);
 	}
 	KillTimer(Timer[playerid]);
  	return 1;
@@ -210,12 +212,12 @@ public OnPlayerDeath(playerid, killerid, reason)
 	{
 		if(killerid != INVALID_PLAYER_ID)
 		{
-			DeathLog(playerid,killerid,reason,VICTIM);
-			DeathLog(killerid,playerid,reason,CULPRIT);
+			logDeath(playerid,killerid,reason,VICTIM);
+			logDeath(killerid,playerid,reason,CULPRIT);
 		}
 		else
 		{
-			DeathLog(playerid,-1,reason,0);
+			logDeath(playerid,-1,reason,0);
 		}
 	}
 
@@ -225,7 +227,7 @@ public OnPlayerText(playerid, text[])
 {
 	if(ChatLogging)
 	{
- 		ChatLog(playerid, text);
+ 		logChat(playerid, text);
 	}
 	return 1;
 }
@@ -234,7 +236,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 {
 	if(CommandLogging)
 	{
-		CommandLog(playerid, cmdtext);
+		logCommand(playerid, cmdtext);
 	}
 	return 0;
 }
@@ -252,7 +254,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(CarExitLogging)
 	{
-		OutLog(playerid,GetPlayerVehicleSeat(playerid),vehicleid,GetVehicleModel(vehicleid));
+		logExitingVehicle(playerid,GetPlayerVehicleSeat(playerid),vehicleid,GetVehicleModel(vehicleid));
 	}
 	return 1;
 }
@@ -858,7 +860,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 {
 	if(InteriorLogging)
 	{
-		InteriorLog(playerid,newinteriorid,oldinteriorid);
+		logInteriorChange(playerid,newinteriorid,oldinteriorid);
 	}
 	return 1;
 }
@@ -869,7 +871,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
  *
  * @param fileName The string of the file name that you want to be recreated
 **/
-stock eraseFile(fileName[])
+eraseFile(fileName[])
 {
 	fremove(fileName);
 	dini_Create(fileName);
@@ -880,7 +882,7 @@ stock eraseFile(fileName[])
  * Send a HTTP request to get the latest version number and pass it to the response method
  *
 **/
-stock checkVersion()
+checkVersion()
 {
 	print("Checking Version");
 	HTTP(1337,HTTP_GET,"twistedeagles.bplaced.net/samplog/version.txt","","MyHttpResponse");
@@ -890,7 +892,7 @@ stock checkVersion()
 /**
  * Loads the settings from the file into the variables
 **/
-stock LoadCFG()
+LoadCFG()
 {
 	PositionLogging = dini_Int(FILE,"PositionLogging");
 	ChatLogging = dini_Int(FILE,"ChatLogging");
@@ -914,7 +916,7 @@ stock LoadCFG()
  *
  * @return time and date
 **/
-stock getDateAndTime()
+getDateAndTime()
 {
 	new fyear;
 	new fmonth;
@@ -934,7 +936,7 @@ stock getDateAndTime()
  *
  * @return time and date
 **/
-stock getTimeInfo()
+getTimeInfo()
 {
 	new fyear;
 	new fmonth;
@@ -975,7 +977,7 @@ stock getTimeInfo()
  * @param string the string that is to check
  * @return 1 if it is numeric and 0 if it isn't
 **/
-stock isNumeric(const string[])
+isNumeric(const string[])
 {
 	for (new i = 0, j = strlen(string); i < j; i++)
 	{
@@ -993,14 +995,14 @@ stock isNumeric(const string[])
  * @param playerid the players id that you want to get the name from
  * @return the players name
 **/
-stock getName(playerid)
+getName(playerid)
 {
 	new name[MAX_PLAYER_NAME];
 	GetPlayerName(playerid,name,MAX_PLAYER_NAME);
 	return name;
 }
 
-stock ChatLog(playerid, text[])
+logChat(playerid, text[])
 {
 	new path[80];
 	switch(SaveMode)
@@ -1030,7 +1032,7 @@ stock ChatLog(playerid, text[])
 	return 1;
 }
 
-stock ConnectLog(playerid)
+logConnect(playerid)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1062,7 +1064,7 @@ stock ConnectLog(playerid)
 	return 1;
 }
 
-stock DisconnectLog(playerid, reason)
+logDisconnect(playerid, reason)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1110,7 +1112,7 @@ stock DisconnectLog(playerid, reason)
 	return 1;
 }
 
-stock CommandLog(playerid, cmdtext[])
+logCommand(playerid, cmdtext[])
 {
 	new path[80];
 	switch(SaveMode)
@@ -1140,7 +1142,7 @@ stock CommandLog(playerid, cmdtext[])
 	return 1;
 }
 
-stock DeathLog(playerid,killerid,reason,victimcase)
+logDeath(playerid,killerid,reason,victimcase)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1184,7 +1186,7 @@ stock DeathLog(playerid,killerid,reason,victimcase)
 	return 1;
 }
 
-stock ShootingLog(playerid,damagedid,Float:amount,weaponid,victimcase)
+logShooting(playerid,damagedid,Float:amount,weaponid,victimcase)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1221,7 +1223,7 @@ stock ShootingLog(playerid,damagedid,Float:amount,weaponid,victimcase)
 	return 1;
 }
 
-stock InteriorLog(playerid,int1,int2)
+logInteriorChange(playerid,int1,int2)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1251,7 +1253,7 @@ stock InteriorLog(playerid,int1,int2)
 	return 1;
 }
 
-stock OutLog(playerid, seat, vehicleid, modelid)
+logExitingVehicle(playerid, seat, vehicleid, modelid)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1293,7 +1295,7 @@ stock OutLog(playerid, seat, vehicleid, modelid)
 	return 1;
 }
 
-stock RconAttemptLog(playerid,bool:success, ip[],password[])
+logRconLogin(playerid,bool:success, ip[],password[])
 {
 	new path[80];
 	switch(SaveMode)
@@ -1316,7 +1318,7 @@ stock RconAttemptLog(playerid,bool:success, ip[],password[])
 		}
 	}
 	new logData[200];
-	if(success)
+	if(!success)
 	{
 		format(logData, 200,"%s %s (IP:%s) has failed to login as RCON, password: %s\r\n",getDateAndTime(), getName(playerid), ip, password);
 	}
@@ -1330,7 +1332,10 @@ stock RconAttemptLog(playerid,bool:success, ip[],password[])
 	return 1;
 }
 
-stock RCommand(cmd[])
+/**
+ * Only non default Rcon Commands are logged
+**/
+logRconCommand(cmd[])
 {
 	new path[21];
 	if(SaveMode == 3)
@@ -1349,7 +1354,7 @@ stock RCommand(cmd[])
 	return 1;
 }
 
-stock InLog(playerid, seat, vehicleid, modelid)
+logEnteringVehicle(playerid, seat, vehicleid, modelid)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1391,7 +1396,7 @@ stock InLog(playerid, seat, vehicleid, modelid)
 	return 1;
 }
 
-stock LogPlayerLocation(playerid,Float:X,Float:Y,Float:Z)
+logPlayerLocation(playerid,Float:X,Float:Y,Float:Z)
 {
 	new path[80];
 	switch(SaveMode)
@@ -1426,7 +1431,7 @@ stock LogPlayerLocation(playerid,Float:X,Float:Y,Float:Z)
  *
  * @param playerid the player who is supposed to see the updated dialog
 **/
-stock Log_Config(playerid)
+Log_Config(playerid)
 {
 	new strlc[14][38];
 	switch(PositionLogging)
@@ -1614,7 +1619,7 @@ stock Log_Config(playerid)
  *
  * @param playerid the player who is supposed to see the dialog
 **/
-stock Log_Clean(playerid)
+Log_Clean(playerid)
 {
 	switch(SaveMode)
 	{
@@ -1646,7 +1651,7 @@ stock Log_Clean(playerid)
  *
  * @return the filesize
 **/
-stock getFileSize(filename[])
+getFileSize(filename[])
 {
 	new File:sizetoget = fopen(filename,io_read);
 	new fileLength = flength(sizetoget);
@@ -1654,7 +1659,7 @@ stock getFileSize(filename[])
 	return fileLength;
 }
 
-stock getLogSizes(playerid)
+getLogSizes(playerid)
 {
 	new alog[12][60];
 	format(alog[0],60,"PositionLog(Size:%i)",getFileSize("Logs/Position.log"));
@@ -1675,7 +1680,7 @@ stock getLogSizes(playerid)
 	return 1;
 }
 
-stock cleanLog(playerid,logid)
+cleanLog(playerid,logid)
 {
 	new logcl[125];
 	switch(logid)
@@ -1739,14 +1744,14 @@ public LogLoc(playerid)
 {
 	new Float:X,Float:Y,Float:Z;
 	GetPlayerPos(playerid,X,Y,Z);
-	LogPlayerLocation(playerid,X,Y,Z);
+	logPlayerLocation(playerid,X,Y,Z);
 	return 1;
 }
 
 forward LogCar(playerid);
 public LogCar(playerid)
 {
-	InLog(playerid,GetPlayerVehicleSeat(playerid),GetPlayerVehicleID(playerid),GetVehicleModel(GetPlayerVehicleID(playerid)));
+	logEnteringVehicle(playerid,GetPlayerVehicleSeat(playerid),GetPlayerVehicleID(playerid),GetVehicleModel(GetPlayerVehicleID(playerid)));
 	return 1;
 }
 
