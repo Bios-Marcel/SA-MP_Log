@@ -1763,8 +1763,8 @@ public MyHttpResponse(index, response_code, data[])
 		print("[Logging System] The Logging filterscript needs an update.");
 		printf("[Logging System] Latest Version: %s", data);
 		printf("[Logging System] Your Version: %s", VERSION);
-		print("[Logging System] Downloadlink: https://dl.dropboxusercontent.com/u/89362253/Log.zip");
-		print("[Logging System] Downloadlink(shortend): http://bit.ly/1TDRqQf");
+		print("[Logging System] Downloadlink: https://github.com/Bios-Marcel/SA-MP_Log/releases/latest");
+		print("[Logging System] Downloadlink(shortend): http://bit.ly/1TghSTT");
 	}
 	else
 	{
