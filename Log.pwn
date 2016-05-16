@@ -17,17 +17,17 @@ new PositionLogging;
 new ChatLogging;
 new CommandLogging;
 new ShootingLogging;
-new	DeathLogging;
-new	ConnectLogging;
-new	DisconnectLogging;
-new	InteriorLogging;
-new	RconLoginLogging;
-new	CarEnterLogging;
-new	CarExitLogging;
-new	RconCommandLogging;
-new	SaveMode;
-new	Timer[MAX_PLAYERS];
-new	gPath[70];
+new DeathLogging;
+new ConnectLogging;
+new DisconnectLogging;
+new InteriorLogging;
+new RconLoginLogging;
+new CarEnterLogging;
+new CarExitLogging;
+new RconCommandLogging;
+new SaveMode;
+new Timer[MAX_PLAYERS];
+new gPath[70];
 
 //DEFINES
 #define LOGMENU 1
