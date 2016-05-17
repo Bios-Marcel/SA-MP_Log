@@ -177,14 +177,14 @@ public OnPlayerConnect(playerid)
 {
 	if(saveMode == 1)
 	{
-		new path[80];
-		format(path,80, "Logs/%s",getName(playerid));
+		new path[40];
+		format(path,40, "Logs/%s",getName(playerid));
 		DirCreate(path);
 	}
 	else if(saveMode == 2)
 	{
-		new path[80];
-		format(path,80, "Logs/%s.log",getName(playerid));
+		new path[44];
+		format(path,44, "Logs/%s.log",getName(playerid));
 		dini_Create(path);
 	}
 	if(connectLogging)
@@ -1158,28 +1158,28 @@ getName(playerid)
 
 logChat(playerid, text[])
 {
-	new path[80];
+	new path[62];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Chat%s.log",getName(playerid),getTimeInfo());
+			format(path,62, "Logs/%s/Chat%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,62, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,62, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Chat%s.log",getTimeInfo());
+			format(path,62, "Logs/Chat%s.log",getTimeInfo());
 		}
 	}
-	new logData[220];
-	format(logData, 220, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
+	new logData[200];
+	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
 	new File:logFile = fopen(path, io_append);
 	fwrite(logFile, logData);
 	fclose(logFile);
@@ -1268,24 +1268,24 @@ logDisconnect(playerid, reason)
 
 logCommand(playerid, cmdtext[])
 {
-	new path[80];
+	new path[65];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Command%s.log",getName(playerid),getTimeInfo());
+			format(path,65, "Logs/%s/Command%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,65, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,65, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Command%s.log",getTimeInfo());
+			format(path,65, "Logs/Command%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1298,24 +1298,24 @@ logCommand(playerid, cmdtext[])
 
 logDeath(playerid,killerid,reason,victimcase)
 {
-	new path[80];
+	new path[63];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Death%s.log",getName(playerid),getTimeInfo());
+			format(path, 63, "Logs/%s/Death%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 63, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path, 63, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Death%s.log",getTimeInfo());
+			format(path, 63, "Logs/Death%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1342,24 +1342,24 @@ logDeath(playerid,killerid,reason,victimcase)
 
 logShooting(playerid,damagedid,Float:amount,weaponid,victimcase)
 {
-	new path[80];
+	new path[66];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Shooting%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s/Shooting%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Shooting%s.log",getTimeInfo());
+			format(path,66, "Logs/Shooting%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1379,24 +1379,24 @@ logShooting(playerid,damagedid,Float:amount,weaponid,victimcase)
 
 logInteriorChange(playerid,int1,int2)
 {
-	new path[80];
+	new path[66];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Interior%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s/Interior%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Interior%s.log",getTimeInfo());
+			format(path,66, "Logs/Interior%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1409,40 +1409,40 @@ logInteriorChange(playerid,int1,int2)
 
 logExitingVehicle(playerid, seat, vehicleid, modelid)
 {
-	new path[80];
+	new path[66];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/CarExit%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s/CarExit%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/CarExit%s.log",getTimeInfo());
+			format(path,66, "Logs/CarExit%s.log",getTimeInfo());
 		}
 	}
-	new seatstr[10];
+	new seatName[10];
 	switch(seat)
 	{
 		 case 0:
 		 {
-		 	seatstr = "Driver";
+		 	seatName = "Driver";
 		 }
 		 default:
 		 {
-		 	seatstr = "Passenger";
+		 	seatName = "Passenger";
 		 }
 	}
 	new logData[200];
-	format(logData, 200, "%s %s exited a vehicle, he/she was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatstr, vehicleid, modelid);
+	format(logData, 200, "%s %s exited a vehicle, he/she was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
 	new File:logFile = fopen(path, io_append);
 	fwrite(logFile, logData);
 	fclose(logFile);
@@ -1451,24 +1451,24 @@ logExitingVehicle(playerid, seat, vehicleid, modelid)
 
 logRconLogin(playerid,bool:success, ip[],password[])
 {
-	new path[80];
+	new path[67];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/RconLogin%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s/RconLogin%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/RconLogin%s.log",getTimeInfo());
+			format(path,67, "Logs/RconLogin%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1491,7 +1491,7 @@ logRconLogin(playerid,bool:success, ip[],password[])
 **/
 logRconCommand(cmd[])
 {
-	new path[21];
+	new path[80];
 	if(saveMode == 3)
 	{
 		format(path,80, "Logs/Log%s.log",getTimeInfo());
@@ -1510,40 +1510,40 @@ logRconCommand(cmd[])
 
 logEnteringVehicle(playerid, seat, vehicleid, modelid)
 {
-	new path[80];
+	new path[67];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/CarEnter%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s/CarEnter%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/CarEnter%s.log",getTimeInfo());
+			format(path,67, "Logs/CarEnter%s.log",getTimeInfo());
 		}
 	}
-	new seatstr[10];
+	new seatName[10];
 	switch(seat)
 	{
 		 case 0:
 		 {
-		 	seatstr = "Driver";
+		 	seatName = "Driver";
 		 }
 		 default:
 		 {
-		 	seatstr = "Passenger";
+		 	seatName = "Passenger";
 		 }
 	}
 	new logData[200];
-	format(logData, 200, "%s %s entered a vehicle, he was a %s, VehicleID: %i, ModelID: %i \r\n\n",getDateAndTime(), getName(playerid), seatstr, vehicleid, modelid);
+	format(logData, 200, "%s %s entered a vehicle, he was a %s, VehicleID: %i, ModelID: %i \r\n\n",getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
 	new File:logFile = fopen(path, io_append);
 	fwrite(logFile, logData);
 	fclose(logFile);
@@ -1552,28 +1552,28 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 
 logPlayerLocation(playerid,Float:X,Float:Y,Float:Z)
 {
-	new path[80];
+	new path[67];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Position%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s/Position%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path,67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Position%s.log",getTimeInfo());
+			format(path,67, "Logs/Position%s.log",getTimeInfo());
 		}
 	}
-	new logData[200];
-	format(logData, 200, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n",getDateAndTime(), getName(playerid), X,Y,Z);
+	new logData[150];
+	format(logData, 150, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n",getDateAndTime(), getName(playerid), X,Y,Z);
 	new File:logFile = fopen(path, io_append);
 	fwrite(logFile, logData);
 	fclose(logFile);
@@ -1798,6 +1798,7 @@ Log_Clean(playerid)
 	}
 	return 1;
 }
+
 /**
  * Returns the filesize of a specific file
  *
@@ -1912,7 +1913,7 @@ public LogCar(playerid)
 forward MyHttpResponse(index, response_code, data[]);
 public MyHttpResponse(index, response_code, data[])
 {
-	new VERSION[9] = "1.3.1";
+	new VERSION[6] = "1.3.1";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
