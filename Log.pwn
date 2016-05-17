@@ -1933,7 +1933,7 @@ public LogCar(playerid)
 forward MyHttpResponse(index, response_code, data[]);
 public MyHttpResponse(index, response_code, data[])
 {
-	new VERSION[6] = "1.3.1";
+	new VERSION[10] = "1.3.1.0.1";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
@@ -2050,7 +2050,7 @@ CMD:logsavemode(playerid,params[])
 	if(IsPlayerAdmin(playerid))
 	{
 		new log;
-		if(sscanf(params, "i",log))
+		if(sscanf(params, "i", log))
 		{
 			return SendClientMessage(playerid, -1, "[Logging System] Usage: /logsavemode [1/2/3/4] \n[Logging System] For information about the diffrent savemodes type /savemodeinfo");
 		}
