@@ -10,23 +10,6 @@
 #include <zcmd>
 #include <sscanf2>
 
-//PUBLIC VARIABLES
-new saveTime = 0;
-new positionLogging;
-new chatLogging;
-new commandLogging;
-new shootingLogging;
-new deathLogging;
-new connectLogging;
-new disconnectLogging;
-new interiorLogging;
-new rconLoginLogging;
-new carEnterLogging;
-new carExitLogging;
-new rconCommandLogging;
-new saveMode;
-new timer[MAX_PLAYERS];
-
 //DEFINES
 #define LOGMENU 1
 #define LOGCONFIG 2
@@ -56,6 +39,43 @@ new timer[MAX_PLAYERS];
 #define FILE "Logs/Config.cfg"
 
 #define BYTES_PER_CELL 4
+
+//FUTURE PLANS
+#define KEEP_FILES_OPEN 0
+
+//PUBLIC VARIABLES
+new saveTime = 0;
+new positionLogging;
+new chatLogging;
+new commandLogging;
+new shootingLogging;
+new deathLogging;
+new connectLogging;
+new disconnectLogging;
+new interiorLogging;
+new rconLoginLogging;
+new carEnterLogging;
+new carExitLogging;
+new rconCommandLogging;
+new saveMode;
+new timer[MAX_PLAYERS];
+
+//FILEHANDLES
+#if KEEP_FILES_OPEN == 1
+new File:mainLogFile = fopen("Logs/Log.log", io_append);
+
+new File:chatLogFile = fopen("Logs/Chat.log", io_append);
+new File:commandLogFile = fopen("Logs/Command.log", io_append);
+new File:connectLogFile = fopen("Logs/Connect.log", io_append);
+new File:disconnectLogFile = fopen("Logs/Disconnect.log", io_append);
+new File:deathLogFile = fopen("Logs/Death.log", io_append);
+new File:interiorLogFile = fopen("Logs/Interior.log", io_append);
+new File:carEnterLogFile = fopen("Logs/CarEnter.log", io_append);
+new File:carExitLogFile = fopen("Logs/CarExit.log", io_append);
+new File:shootingLogFile = fopen("Logs/Shooting.log", io_append);
+new File:rconLoginLogFile = fopen("Logs/RconLogin.log", io_append);
+new File:positionLogFile = fopen("Logs/Position.log", io_append);
+#endif
 
 //PUBLICS (default)
 public OnFilterScriptInit()
@@ -196,11 +216,11 @@ public OnPlayerConnect(playerid)
 
 public OnPlayerDisconnect(playerid, reason)
 {
+	KillTimer(timer[playerid]);
 	if(disconnectLogging)
 	{
 		logDisconnect(playerid, reason);
 	}
-	KillTimer(timer[playerid]);
  	return 1;
 }
 
