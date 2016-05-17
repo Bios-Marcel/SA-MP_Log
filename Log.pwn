@@ -178,13 +178,13 @@ public OnPlayerConnect(playerid)
 	if(saveMode == 1)
 	{
 		new path[40];
-		format(path,40, "Logs/%s",getName(playerid));
+		format(path, 40, "Logs/%s",getName(playerid));
 		DirCreate(path);
 	}
 	else if(saveMode == 2)
 	{
 		new path[44];
-		format(path,44, "Logs/%s.log",getName(playerid));
+		format(path, 44, "Logs/%s.log",getName(playerid));
 		dini_Create(path);
 	}
 	if(connectLogging)
@@ -288,11 +288,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response)
 			{
 				new path[70];
-				format(path,70, "Logs/%s",inputtext);
+				format(path, 70, "Logs/%s",inputtext);
 				if(CheckPath(path))
 				{
 					gPath = path;
-					ShowPlayerDialog(playerid,SAVEMODE1_CHOOSELOG,DIALOG_STYLE_LIST, "Log clean (Step 2)", "Position log\nChat log\nCommand log\nShooting log\nDeath log\nConnect log\nDisconnect log\nInterior log\n Rcon login log\nCarEnter log\nCarExit log", "Confirm", "Back");
+					ShowPlayerDialog(playerid, SAVEMODE1_CHOOSELOG,DIALOG_STYLE_LIST, "Log clean (Step 2)", "Position log\nChat log\nCommand log\nShooting log\nDeath log\nConnect log\nDisconnect log\nInterior log\n Rcon login log\nCarEnter log\nCarExit log", "Confirm", "Back");
 				}
 			}
 			else
@@ -309,54 +309,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{
 					case 0:
 					{
-						format(path,75, "%s/Position.log",gPath);
+						format(path, 75, "%s/Position.log",gPath);
 					}
 					case 1:
 					{
-						format(path,75, "%s/Chat.log",gPath);
+						format(path, 75, "%s/Chat.log",gPath);
 					}
 					case 2:
 					{
-						format(path,75, "%s/Command.log",gPath);
+						format(path, 75, "%s/Command.log",gPath);
 					}
 					case 3:
 					{
-						format(path,75, "%s/Shooting.log",gPath);
+						format(path, 75, "%s/Shooting.log",gPath);
 					}
 					case 4:
 					{
-						format(path,75, "%s/Death.log",gPath);
+						format(path, 75, "%s/Death.log",gPath);
 					}
 					case 5:
 					{
-						format(path,75, "%s/Connect.log",gPath);
+						format(path, 75, "%s/Connect.log",gPath);
 					}
 					case 6:
 					{
-						format(path,75, "%s/Disconnecct.log",gPath);
+						format(path, 75, "%s/Disconnecct.log",gPath);
 					}
 					case 7:
 					{
-						format(path,75, "%s/Interior.log",gPath);
+						format(path, 75, "%s/Interior.log",gPath);
 					}
 					case 8:
 					{
-						format(path,75, "%s/RconLogin.log",gPath);
+						format(path, 75, "%s/RconLogin.log",gPath);
 					}
 					case 9:
 					{
-						format(path,75, "%s/CarEnter.log",gPath);
+						format(path, 75, "%s/CarEnter.log",gPath);
 					}
 					case 10:
 					{
-						format(path,75, "%s/CarExit.log",gPath);
+						format(path, 75, "%s/CarExit.log",gPath);
 					}
 				}
 				eraseFile(path);
 			}
 			else
 			{
-				ShowPlayerDialog(playerid,SAVEMODE1_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Choose a player to delete his logfiles(You will choose the specific log afterwards)", "Confirm", "Back");
+				ShowPlayerDialog(playerid, SAVEMODE1_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Choose a player to delete his logfiles(You will choose the specific log afterwards)", "Confirm", "Back");
 			}
 		 }
 		case SAVEMODE2_CHOOSEPLAYER:
@@ -364,10 +364,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response)
 			{
 				new path[70];
-				format(path,70, "Logs/%s.log",inputtext);
+				format(path, 70, "Logs/%s.log",inputtext);
 				if(!fexist(path))
 				{
-					ShowPlayerDialog(playerid,SAVEMODE2_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Which Player File should be cleaned?\n(The Full Playername not PlayerID)", "Confirm", "Back");
+					ShowPlayerDialog(playerid, SAVEMODE2_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Which Player File should be cleaned?\n(The Full Playername not PlayerID)", "Confirm", "Back");
 					GameTextForPlayer(playerid, "Invalid Playername! (Watch out for case sensitive)",3000,5);
 				}
 				else
@@ -753,7 +753,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							saveMode = 1;
 						}
-						dini_IntSet(FILE, "SaveMode",saveMode);
+						dini_IntSet(FILE, "SaveMode", SAVEMode);
 						Log_Config(playerid);
 					}
 					case 13:
@@ -763,7 +763,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							saveTime = 0;
 						}
-						dini_IntSet(FILE, "LogFilesPerX",saveTime);
+						dini_IntSet(FILE, "LogFilesPerX", SAVETime);
 						Log_Config(playerid);
 					}
 					case 14:
@@ -1163,19 +1163,19 @@ logChat(playerid, text[])
 	{
 		case 1:
 		{
-			format(path,62, "Logs/%s/Chat%s.log",getName(playerid),getTimeInfo());
+			format(path, 62, "Logs/%s/Chat%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,62, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 62, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,62, "Logs/Log%s.log",getTimeInfo());
+			format(path, 62, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,62, "Logs/Chat%s.log",getTimeInfo());
+			format(path, 62, "Logs/Chat%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1193,19 +1193,19 @@ logConnect(playerid)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Connect%s.log",getName(playerid),getTimeInfo());
+			format(path, 80, "Logs/%s/Connect%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path, 80, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Connect%s.log",getTimeInfo());
+			format(path, 80, "Logs/Connect%s.log",getTimeInfo());
 		}
 	}
 	new ip[16];
@@ -1225,19 +1225,19 @@ logDisconnect(playerid, reason)
 	{
 		case 1:
 		{
-			format(path,80, "Logs/%s/Disconnect%s.log",getName(playerid),getTimeInfo());
+			format(path, 80, "Logs/%s/Disconnect%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 80, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,80, "Logs/Log%s.log",getTimeInfo());
+			format(path, 80, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,80, "Logs/Disconnect%s.log",getTimeInfo());
+			format(path, 80, "Logs/Disconnect%s.log",getTimeInfo());
 		}
 	}
 	new ip[16];
@@ -1273,19 +1273,19 @@ logCommand(playerid, cmdtext[])
 	{
 		case 1:
 		{
-			format(path,65, "Logs/%s/Command%s.log",getName(playerid),getTimeInfo());
+			format(path, 65, "Logs/%s/Command%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,65, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 65, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,65, "Logs/Log%s.log",getTimeInfo());
+			format(path, 65, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,65, "Logs/Command%s.log",getTimeInfo());
+			format(path, 65, "Logs/Command%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1347,19 +1347,19 @@ logShooting(playerid,damagedid,Float:amount,weaponid,victimcase)
 	{
 		case 1:
 		{
-			format(path,66, "Logs/%s/Shooting%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s/Shooting%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,66, "Logs/Log%s.log",getTimeInfo());
+			format(path, 66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,66, "Logs/Shooting%s.log",getTimeInfo());
+			format(path, 66, "Logs/Shooting%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1384,19 +1384,19 @@ logInteriorChange(playerid,int1,int2)
 	{
 		case 1:
 		{
-			format(path,66, "Logs/%s/Interior%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s/Interior%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,66, "Logs/Log%s.log",getTimeInfo());
+			format(path, 66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,66, "Logs/Interior%s.log",getTimeInfo());
+			format(path, 66, "Logs/Interior%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1414,19 +1414,19 @@ logExitingVehicle(playerid, seat, vehicleid, modelid)
 	{
 		case 1:
 		{
-			format(path,66, "Logs/%s/CarExit%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s/CarExit%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 66, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,66, "Logs/Log%s.log",getTimeInfo());
+			format(path, 66, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,66, "Logs/CarExit%s.log",getTimeInfo());
+			format(path, 66, "Logs/CarExit%s.log",getTimeInfo());
 		}
 	}
 	new seatName[10];
@@ -1456,19 +1456,19 @@ logRconLogin(playerid,bool:success, ip[],password[])
 	{
 		case 1:
 		{
-			format(path,67, "Logs/%s/RconLogin%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s/RconLogin%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,67, "Logs/Log%s.log",getTimeInfo());
+			format(path, 67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,67, "Logs/RconLogin%s.log",getTimeInfo());
+			format(path, 67, "Logs/RconLogin%s.log",getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1494,11 +1494,11 @@ logRconCommand(cmd[])
 	new path[80];
 	if(saveMode == 3)
 	{
-		format(path,80, "Logs/Log%s.log",getTimeInfo());
+		format(path, 80, "Logs/Log%s.log",getTimeInfo());
 	}
 	else
 	{
-		format(path,80, "Logs/RconCommand%s.log",getTimeInfo());
+		format(path, 80, "Logs/RconCommand%s.log",getTimeInfo());
 	}
 	new logData[200];
 	format(logData, 200, "%s /rcon %s \r\n\n",getDateAndTime(), cmd);
@@ -1515,19 +1515,19 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 	{
 		case 1:
 		{
-			format(path,67, "Logs/%s/CarEnter%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s/CarEnter%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,67, "Logs/Log%s.log",getTimeInfo());
+			format(path, 67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,67, "Logs/CarEnter%s.log",getTimeInfo());
+			format(path, 67, "Logs/CarEnter%s.log",getTimeInfo());
 		}
 	}
 	new seatName[10];
@@ -1557,19 +1557,19 @@ logPlayerLocation(playerid,Float:X,Float:Y,Float:Z)
 	{
 		case 1:
 		{
-			format(path,67, "Logs/%s/Position%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s/Position%s.log",getName(playerid),getTimeInfo());
 		}
 		case 2:
 		{
-			format(path,67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
+			format(path, 67, "Logs/%s%s.log",getName(playerid),getTimeInfo());
 		}
 		case 3:
 		{
-			format(path,67, "Logs/Log%s.log",getTimeInfo());
+			format(path, 67, "Logs/Log%s.log",getTimeInfo());
 		}
 		case 4:
 		{
-			format(path,67, "Logs/Position%s.log",getTimeInfo());
+			format(path, 67, "Logs/Position%s.log",getTimeInfo());
 		}
 	}
 	new logData[150];
@@ -1779,17 +1779,17 @@ Log_Clean(playerid)
 	{
 	    case 1:
 	    {
-			ShowPlayerDialog(playerid,SAVEMODE1_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Choose a player to delete his logfiles(You will choose the specific log afterwards)", "Confirm", "Back");
+			ShowPlayerDialog(playerid, SAVEMODE1_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Choose a player to delete his logfiles(You will choose the specific log afterwards)", "Confirm", "Back");
 		}
 	    case 2:
 	    {
-			ShowPlayerDialog(playerid,SAVEMODE2_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Which players file should be cleaned?\n(The full playername, not the player id)", "Confirm", "Back");
+			ShowPlayerDialog(playerid, SAVEMODE2_CHOOSEPLAYER,DIALOG_STYLE_INPUT, "Log clean", "Which players file should be cleaned?\n(The full playername, not the player id)", "Confirm", "Back");
 	    }
 	    case 3:
 		{
 			new msg[200];
-			format(msg,200, "Are you sure that you want to clean the log file? (Size: %i)",getFileSize("Logs/Log.log"));
-			ShowPlayerDialog(playerid,SAVEMODE3_CLEAN,DIALOG_STYLE_MSGBOX, "Log clean",msg, "Confirm", "Back");
+			format(msg, 200, "Are you sure that you want to clean the log file? (Size: %i)",getFileSize("Logs/Log.log"));
+			ShowPlayerDialog(playerid, SAVEMODE3_CLEAN,DIALOG_STYLE_MSGBOX, "Log clean",msg, "Confirm", "Back");
 		}
 		default:
 		{
@@ -1831,7 +1831,7 @@ getLogSizes(playerid)
 	format(alog[11],60, "RconCommandLog(Size:%i)",getFileSize("Logs/RconCommand.log"));
 	new abig[1200];
 	format(abig,1200, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",alog[0],alog[1],alog[2],alog[3],alog[4],alog[5],alog[6],alog[7],alog[8],alog[9],alog[10],alog[11]);
-	ShowPlayerDialog(playerid,SAVEMODE4_CHOOSE,DIALOG_STYLE_LIST, "Log clean",abig, "Confirm", "Back");
+	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE,DIALOG_STYLE_LIST, "Log clean",abig, "Confirm", "Back");
 	return 1;
 }
 
