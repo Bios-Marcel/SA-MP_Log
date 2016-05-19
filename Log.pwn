@@ -1092,16 +1092,16 @@ LoadCFG()
 **/
 getDateAndTime()
 {
-	new fyear;
-	new fmonth;
-	new fday;
-	getdate(fyear, fmonth, fday);
-	new fhour;
-	new fminute;
-	new fsecond;
-	gettime(fhour, fminute, fsecond);
-	new date[32];
-	format(date, 32, "[%02d/%02d/%04d %02d:%02d:%02d]", fday, fmonth, fyear, fhour, fminute, fsecond);
+	new year;
+	new month;
+	new day;
+	getdate(year, month, day);
+	new hour;
+	new minute;
+	new second;
+	gettime(hour, minute, second);
+	new date[23];
+	format(date, 23, "[%02d/%02d/%04d %02d:%02d:%02d]", day, month, year, hour, minute, second);
 	return date;
 }
 
@@ -1112,13 +1112,13 @@ getDateAndTime()
 **/
 getTimeInfo()
 {
-	new fyear;
-	new fmonth;
-	new fday;
-	getdate(fyear, fmonth, fday);
-	new fhour;
-	gettime(fhour);
-	new date[32];
+	new year;
+	new month;
+	new day;
+	getdate(year, month, day);
+	new hour;
+	gettime(hour);
+	new date[16];
 	switch(saveTime)
 	{
 		case 0:
@@ -1127,19 +1127,19 @@ getTimeInfo()
 		}
 		case 1:
 		{
-			format(date, 32, "-%02d-%02d-%04d_%02d", fday, fmonth, fyear, fhour);
+			format(date, 16, "-%02d-%02d-%04d_%02d", day, month, year, hour);
 		}
 		case 2:
 		{
-			format(date, 32, "-%02d-%02d-%04d", fday, fmonth, fyear);
+			format(date, 16, "-%02d-%02d-%04d", day, month, year);
 		}
 		case 3:
 		{
-			format(date, 32, "-%02d-%04d", fmonth, fyear);
+			format(date, 16, "-%02d-%04d", month, year);
 		}
 		case 4:
 		{
-			format(date, 32, "-%04d", fyear);
+			format(date, 16, "-%04d", year);
 		}
 	}
 	return date;
