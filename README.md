@@ -51,9 +51,9 @@ Well, I kind of am afraid that my filterscript causes performance / memory probl
 ## Future Plans:
 
 - Better Documentation
-- Improve Performance (Memory usage, cpu time)
+- Improve Performance
 
 ## Version:
-1.3.1 (15.05.2016)
+1.3.1.0.1 (17.05.2016)
 
 greetings Marcel
