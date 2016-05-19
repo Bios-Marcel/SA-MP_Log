@@ -1198,8 +1198,8 @@ logChat(playerid, text[])
 			format(path, 62, "Logs/Chat%s.log", getTimeInfo());
 		}
 	}
-	new logData[200];
-	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
+	new logData[190];
+	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
 	new File:logFile = fopen(path, io_append);
 	fwrite(logFile, logData);
 	fclose(logFile);
@@ -1607,183 +1607,183 @@ logPlayerLocation(playerid, Float:X, Float:Y, Float:Z)
 **/
 Log_Config(playerid)
 {
-	new strlc[14][38];
+	new logPartString[14][38];
 	switch(positionLogging)
 	{
 		case 0:
 		{
-			strlc[0] = "PositionLogging[]";
+			logPartString[0] = "PositionLogging[]";
 		}
 		case 1:
 		{
-			strlc[0] = "PositionLogging[X]";
+			logPartString[0] = "PositionLogging[X]";
 		}
 	}
 	switch(chatLogging)
 	{
 		case 0:
 		{
-			strlc[1] = "ChatLogging[]";
+			logPartString[1] = "ChatLogging[]";
 		}
 		case 1:
 		{
-			strlc[1] = "ChatLogging[X]";
+			logPartString[1] = "ChatLogging[X]";
 		}
 	}
 	switch(commandLogging)
 	{
 		case 0:
 		{
-			strlc[2] = "CommandLogging[]";
+			logPartString[2] = "CommandLogging[]";
 		}
 		case 1:
 		{
-			strlc[2] = "CommandLogging[X]";
+			logPartString[2] = "CommandLogging[X]";
 		}
 	}
 	switch(shootingLogging)
 	{
 		case 0:
 		{
-			strlc[3] = "ShootingLogging[]";
+			logPartString[3] = "ShootingLogging[]";
 		}
 		case 1:
 		{
-			strlc[3] = "ShootingLogging[X]";
+			logPartString[3] = "ShootingLogging[X]";
  		}
 	}
 	switch(deathLogging)
 	{
 		case 0:
 		{
-			strlc[4] = "DeathLogging[]";
+			logPartString[4] = "DeathLogging[]";
 		}
 		case 1:
 		{
-			strlc[4] = "DeathLogging[X]";
+			logPartString[4] = "DeathLogging[X]";
 		}
 	}
 	switch(connectLogging)
 	{
 		case 0:
 		{
-			strlc[5] = "ConnectLogging[]";
+			logPartString[5] = "ConnectLogging[]";
 		}
 		case 1:
 		{
-			strlc[5] = "ConnectLogging[X]";
+			logPartString[5] = "ConnectLogging[X]";
 		}
 	}
 	switch(disconnectLogging)
 	{
 		case 0:
 		{
-			strlc[6] = "DisconnectLogging[]";
+			logPartString[6] = "DisconnectLogging[]";
 		}
 		case 1:
 		{
-			strlc[6] = "DisconnectLogging[X]";
+			logPartString[6] = "DisconnectLogging[X]";
 		}
 	}
 	switch(interiorLogging)
 	{
 		case 0:
 		{
-			strlc[7] = "InteriorLogging[]";
+			logPartString[7] = "InteriorLogging[]";
 		}
 		case 1:
 		{
-			strlc[7] = "InteriorLogging[X]";
+			logPartString[7] = "InteriorLogging[X]";
 		}
 	}
 	switch(rconLoginLogging)
 	{
 		case 0:
 		{
-			strlc[8] = "RconLoginLogging[]";
+			logPartString[8] = "RconLoginLogging[]";
 		}
 		case 1:
 		{
-			strlc[8] = "RconLoginLogging[X]";
+			logPartString[8] = "RconLoginLogging[X]";
 		}
 	}
 	switch(carEnterLogging)
 	{
 		case 0:
 		{
-			strlc[9] = "CarEnterLogging[]";
+			logPartString[9] = "CarEnterLogging[]";
 		}
 		case 1:
 		{
-			strlc[9] = "CarEnterLogging[X]";
+			logPartString[9] = "CarEnterLogging[X]";
 		}
 	}
 	switch(carExitLogging)
 	{
 		case 0:
 		{
-			strlc[10] = "CarExitLogging[]";
+			logPartString[10] = "CarExitLogging[]";
 		}
 		case 1:
 		{
-			strlc[10] = "CarExitLogging[X]";
+			logPartString[10] = "CarExitLogging[X]";
 		}
 	}
 	switch(rconCommandLogging)
 	{
 		case 0:
 		{
-			strlc[11] = "RconCommandLogging[]";
+			logPartString[11] = "RconCommandLogging[]";
 		}
 		case 1:
 		{
-			strlc[11] = "RconCommandLogging[X]";
+			logPartString[11] = "RconCommandLogging[X]";
 		}
 	}
 	switch(saveMode)
 	{
 		case 1:
 		{
-			strlc[12] = "SaveMode 1[X] 2[ ] 3[ ] 4[ ]";
+			logPartString[12] = "SaveMode 1[X] 2[ ] 3[ ] 4[ ]";
 		}
 		case 2:
 		{
-			strlc[12] = "SaveMode 1[ ] 2[X] 3[ ] 4[ ]";
+			logPartString[12] = "SaveMode 1[ ] 2[X] 3[ ] 4[ ]";
 		}
 		case 3:
 		{
-			strlc[12] = "SaveMode 1[ ] 2[ ] 3[X] 4[ ]";
+			logPartString[12] = "SaveMode 1[ ] 2[ ] 3[X] 4[ ]";
 		}
 		case 4:
 		{
-			strlc[12] = "SaveMode 1[ ] 2[ ] 3[ ] 4[X]";
+			logPartString[12] = "SaveMode 1[ ] 2[ ] 3[ ] 4[X]";
 		}
 	}
 	switch(saveTime)
 	{
 		case 0:
 		{
-			strlc[13] = "Save logfiles per (Function disabled)";
+			logPartString[13] = "Save logfiles per (Function disabled)";
 		}
 		case 1:
 		{
-			strlc[13] = "Save logfiles per hour";
+			logPartString[13] = "Save logfiles per hour";
 		}
 		case 2:
 		{
-			strlc[13] = "Save logfiles per day";
+			logPartString[13] = "Save logfiles per day";
 		}
 		case 3:
 		{
-			strlc[13] = "Save logfiles per month";
+			logPartString[13] = "Save logfiles per month";
 		}
 		case 4:
 		{
-			strlc[13] = "Save logfiles per year";
+			logPartString[13] = "Save logfiles per year";
 		}
 	}
 	new string[370];
-	format(string,370, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\nPositionLogInterval\n \nDisable All\nEnable All",strlc[0],strlc[1],strlc[2],strlc[3],strlc[4],strlc[5],strlc[6],strlc[7],strlc[8],strlc[9],strlc[10],strlc[11],strlc[12],strlc[13]);
+	format(string,370, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\nPositionLogInterval\n \nDisable All\nEnable All",logPartString[0],logPartString[1],logPartString[2],logPartString[3],logPartString[4],logPartString[5],logPartString[6],logPartString[7],logPartString[8],logPartString[9],logPartString[10],logPartString[11],logPartString[12],logPartString[13]);
 	ShowPlayerDialog(playerid, LOGCONFIG, DIALOG_STYLE_LIST, "Log Config", string, "Confirm", "Back");
 	return 1;
 }
@@ -1807,9 +1807,9 @@ Log_Clean(playerid)
 	    }
 	    case 3:
 		{
-			new msg[120];
-			format(msg, 120, "Are you sure that you want to clean the log file? (Size: %i)", getFileSize("Logs/Log.log"));
-			ShowPlayerDialog(playerid, SAVEMODE3_CLEAN, DIALOG_STYLE_MSGBOX, "Log clean", msg, "Confirm", "Back");
+			new message[120];
+			format(message, 120, "Are you sure that you want to clean the log file? (Size: %i)", getFileSize("Logs/Log.log"));
+			ShowPlayerDialog(playerid, SAVEMODE3_CLEAN, DIALOG_STYLE_MSGBOX, "Log clean", message, "Confirm", "Back");
 		}
 		default:
 		{
@@ -1836,22 +1836,22 @@ getFileSize(filename[])
 
 getLogSizes(playerid)
 {
-	new alog[12][60];
-	format(alog[0],60, "PositionLog(Size:%i)", getFileSize("Logs/Position.log"));
-	format(alog[1],60, "ChatLog(Size:%i)", getFileSize("Logs/Chat.log"));
-	format(alog[2],60, "CommandLog(Size:%i)", getFileSize("Logs/Command.log"));
-	format(alog[3],60, "ShootingLog(Size:%i)", getFileSize("Logs/Shooting.log"));
-	format(alog[4],60, "DeathLog(Size:%i)", getFileSize("Logs/Death.log"));
-	format(alog[5],60, "ConnectLog(Size:%i)", getFileSize("Logs/Connect.log"));
-	format(alog[6],60, "DisconnectLog(Size:%i)", getFileSize("Logs/Disconnect.log"));
-	format(alog[7],60, "InteriorLog(Size:%i)", getFileSize("Logs/Interior.log"));
-	format(alog[8],60, "RconLoginLog(Size:%i)", getFileSize("Logs/RconLogin.log"));
-	format(alog[9],60, "CarEnterLog(Size:%i)", getFileSize("Logs/CarEnter.log"));
-	format(alog[10],60, "CarExitLog(Size:%i)", getFileSize("Logs/CarExit.log"));
-	format(alog[11],60, "RconCommandLog(Size:%i)", getFileSize("Logs/RconCommand.log"));
-	new abig[1200];
-	format(abig, 1200, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", alog[0], alog[1], alog[2], alog[3], alog[4], alog[5], alog[6], alog[7], alog[8], alog[9], alog[10], alog[11]);
-	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE, DIALOG_STYLE_LIST, "Log clean",abig, "Confirm", "Back");
+	new logPartSizeString[12][60];
+	format(logPartSizeString[0],60, "PositionLog(Size:%i)", getFileSize("Logs/Position.log"));
+	format(logPartSizeString[1],60, "ChatLog(Size:%i)", getFileSize("Logs/Chat.log"));
+	format(logPartSizeString[2],60, "CommandLog(Size:%i)", getFileSize("Logs/Command.log"));
+	format(logPartSizeString[3],60, "ShootingLog(Size:%i)", getFileSize("Logs/Shooting.log"));
+	format(logPartSizeString[4],60, "DeathLog(Size:%i)", getFileSize("Logs/Death.log"));
+	format(logPartSizeString[5],60, "ConnectLog(Size:%i)", getFileSize("Logs/Connect.log"));
+	format(logPartSizeString[6],60, "DisconnectLog(Size:%i)", getFileSize("Logs/Disconnect.log"));
+	format(logPartSizeString[7],60, "InteriorLog(Size:%i)", getFileSize("Logs/Interior.log"));
+	format(logPartSizeString[8],60, "RconLoginLog(Size:%i)", getFileSize("Logs/RconLogin.log"));
+	format(logPartSizeString[9],60, "CarEnterLog(Size:%i)", getFileSize("Logs/CarEnter.log"));
+	format(logPartSizeString[10],60, "CarExitLog(Size:%i)", getFileSize("Logs/CarExit.log"));
+	format(logPartSizeString[11],60, "RconCommandLog(Size:%i)", getFileSize("Logs/RconCommand.log"));
+	new logSizes[1200];
+	format(logSizes, 1200, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", logPartSizeString[0], logPartSizeString[1], logPartSizeString[2], logPartSizeString[3], logPartSizeString[4], logPartSizeString[5], logPartSizeString[6], logPartSizeString[7], logPartSizeString[8], logPartSizeString[9], logPartSizeString[10], logPartSizeString[11]);
+	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE, DIALOG_STYLE_LIST, "Log clean",logSizes, "Confirm", "Back");
 	return 1;
 }
 
@@ -1950,7 +1950,7 @@ public MyHttpResponse(index, response_code, data[])
 }
 
 //COMMANDS
-CMD:logmenu(playerid,params[])
+CMD:logmenu(playerid)
 {
 	if(IsPlayerAdmin(playerid))
 	{
@@ -2014,7 +2014,7 @@ CMD:logdisable(playerid,params[])
 	return 1;
 }
 
-CMD:loghelp(playerid, params[])
+CMD:loghelp(playerid)
 {
 	SendClientMessage(playerid, -1, "-------------------[Logging System]-------------------");
 	SendClientMessage(playerid, -1, "/loghelp: displays the helpmessages that u are looking at right now :P.");
@@ -2027,7 +2027,7 @@ CMD:loghelp(playerid, params[])
 	return 1;
 }
 
-CMD:savemodeinfo(playerid,params[])
+CMD:savemodeinfo(playerid)
 {
 	SendClientMessage(playerid, -1 , "[Logging System] Savemode 1 will create a folder for every player and a logfile for every category (Example: JohnCena/Chat.log).");
 	SendClientMessage(playerid, -1 , "[Logging System] Savemode 2 will save all information that has to be logged into per-player files (Example: JohnCena.log).");
@@ -2036,7 +2036,7 @@ CMD:savemodeinfo(playerid,params[])
 	return 1;
 }
 
-CMD:setpositionloginterval(playerid, params[])
+CMD:setpositionloginterval(playerid)
 {
 	if(IsPlayerAdmin(playerid))
 	{
