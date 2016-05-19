@@ -592,13 +592,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							positionLogging = 0;
 							dini_IntSet(FILE, "PositionLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							positionLogging = 1;
 							dini_IntSet(FILE, "PositionLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 1:
@@ -607,13 +605,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							chatLogging = 0;
 							dini_IntSet(FILE, "ChatLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							chatLogging = 1;
 							dini_IntSet(FILE, "ChatLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 2:
@@ -622,13 +618,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							commandLogging = 0;
 							dini_IntSet(FILE, "CommandLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							commandLogging = 1;
 							dini_IntSet(FILE, "CommandLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 3:
@@ -637,13 +631,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							shootingLogging = 0;
 							dini_IntSet(FILE, "ShootingLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							shootingLogging = 1;
 							dini_IntSet(FILE, "ShootingLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 4:
@@ -652,13 +644,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							deathLogging = 0;
 							dini_IntSet(FILE, "DeathLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							deathLogging = 1;
 							dini_IntSet(FILE, "DeathLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 5:
@@ -667,13 +657,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							connectLogging = 0;
 							dini_IntSet(FILE, "ConnectLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							connectLogging = 1;
 							dini_IntSet(FILE, "ConnectLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 6:
@@ -682,13 +670,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							disconnectLogging = 0;
 							dini_IntSet(FILE, "DisconnectLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							disconnectLogging = 1;
 							dini_IntSet(FILE, "DisconnectLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 7:
@@ -697,13 +683,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							interiorLogging = 0;
 							dini_IntSet(FILE, "InteriorLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							interiorLogging = 1;
 							dini_IntSet(FILE, "InteriorLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 8:
@@ -712,13 +696,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							rconLoginLogging = 0;
 							dini_IntSet(FILE, "RconLoginLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							rconLoginLogging = 1;
 							dini_IntSet(FILE, "RconLoginLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 9:
@@ -727,13 +709,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							carEnterLogging = 0;
 							dini_IntSet(FILE, "CarEnterLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							carEnterLogging = 1;
 							dini_IntSet(FILE, "CarEnterLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 10:
@@ -742,13 +722,11 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							carExitLogging = 0;
 							dini_IntSet(FILE, "CarExitLogging", 0);
-							Log_Config(playerid);
 						}
 						else
 						{
 							carExitLogging = 1;
 							dini_IntSet(FILE, "CarExitLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 11:
@@ -763,7 +741,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							rconCommandLogging = 1;
 							dini_IntSet(FILE, "RconCommandLogging", 1);
-							Log_Config(playerid);
 						}
 					}
 					case 12:
@@ -774,7 +751,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							saveMode = 1;
 						}
 						dini_IntSet(FILE, "SaveMode", saveMode);
-						Log_Config(playerid);
 					}
 					case 13:
 					{
@@ -784,7 +760,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							saveTime = 0;
 						}
 						dini_IntSet(FILE, "LogFilesPerX", saveTime);
-						Log_Config(playerid);
 					}
 					case 14:
 					{
@@ -820,7 +795,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dini_IntSet(FILE, "CommandLogging", 0);
 						rconCommandLogging = 0;
 						dini_IntSet(FILE, "RconCommandLogging", 0);
-						Log_Config(playerid);
 					}
 					case 17:
 					{
@@ -848,9 +822,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dini_IntSet(FILE, "CommandLogging", 1);
 						rconCommandLogging = 1;
 						dini_IntSet(FILE, "RconCommandLogging", 1);
-						Log_Config(playerid);
 					}
 				}
+				Log_Config(playerid);
 			}
 		}
 		case POSLOGINT:
