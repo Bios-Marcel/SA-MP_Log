@@ -11,23 +11,6 @@
 #include <sscanf2>
 #include <exceptions>
 
-//PUBLIC VARIABLES
-new saveTime = 0;
-new positionLogging;
-new chatLogging;
-new commandLogging;
-new shootingLogging;
-new deathLogging;
-new connectLogging;
-new disconnectLogging;
-new interiorLogging;
-new rconLoginLogging;
-new carEnterLogging;
-new carExitLogging;
-new rconCommandLogging;
-new saveMode;
-new timer[MAX_PLAYERS];
-
 //DEFINES
 #define LOGMENU 1
 #define LOGCONFIG 2
@@ -57,6 +40,24 @@ new timer[MAX_PLAYERS];
 #define CONFIG_FILE "Logs/Config.cfg"
 
 #define BYTES_PER_CELL 4
+
+
+//PUBLIC VARIABLES
+new saveTime = 0;
+new positionLogging;
+new chatLogging;
+new commandLogging;
+new shootingLogging;
+new deathLogging;
+new connectLogging;
+new disconnectLogging;
+new interiorLogging;
+new rconLoginLogging;
+new carEnterLogging;
+new carExitLogging;
+new rconCommandLogging;
+new saveMode;
+new timer[MAX_PLAYERS];
 
 //PUBLICS (default)
 public OnFilterScriptInit()
@@ -141,8 +142,18 @@ public OnRconLoginAttempt(ip[], password[], success)
 			GetPlayerIp(i, IP, 16);
 			if(!strcmp(ip, IP, true))
 			{
-				logRconLogin(i, success ? true : false, ip, password);
-				break;
+				try
+				{
+					logRconLogin(i, success ? true : false, ip, password);
+				}
+				catch(e)
+				{
+				    printf("%s", e[Message]);
+				}
+				finally
+				{
+					break;
+  				}
 			}
 		}
 	}
@@ -151,7 +162,14 @@ public OnRconLoginAttempt(ip[], password[], success)
 
 public OnRconCommand(cmd[])
 {
-	logRconCommand(cmd);
+ 	try
+ 	{
+		logRconCommand(cmd);
+    }
+	catch(e)
+	{
+	    printf("%s", e[Message]);
+	}
 	return 1;
 }
 
@@ -165,8 +183,22 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(shootingLogging)
 	{
-	    logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
-		logShooting(issuerid, playerid, amount, weaponid, VICTIM);
+		try
+		{
+			logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
+		try
+		{
+			logShooting(issuerid, playerid, amount, weaponid, VICTIM);
+        }
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	return 1;
 }
@@ -187,7 +219,14 @@ public OnPlayerConnect(playerid)
 	}
 	if(connectLogging)
 	{
-		logConnect(playerid);
+		try
+		{
+			logConnect(playerid);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	if(positionLogging)
 	{
@@ -201,7 +240,14 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer[playerid]);
 	if(disconnectLogging)
 	{
-		logDisconnect(playerid, reason);
+	    try
+	    {
+			logDisconnect(playerid, reason);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
  	return 1;
 }
