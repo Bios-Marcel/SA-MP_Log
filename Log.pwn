@@ -145,15 +145,12 @@ public OnRconLoginAttempt(ip[], password[], success)
 				try
 				{
 					logRconLogin(i, success ? true : false, ip, password);
+					break;
 				}
 				catch(e)
 				{
 				    printf("%s", e[Message]);
 				}
-				finally
-				{
-					break;
-  				}
 			}
 		}
 	}
@@ -162,6 +159,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 
 public OnRconCommand(cmd[])
 {
+	printf("RCON: %s", cmd);
  	try
  	{
 		logRconCommand(cmd);
@@ -175,7 +173,10 @@ public OnRconCommand(cmd[])
 
 public OnPlayerSpawn(playerid)
 {
-	//TODO(msc) Log player spawn
+	if(positionLogging)
+	{
+		timer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, "PosiotionLogInterval"), true, "i", playerid);
+	}
 	return 1;
 }
 
@@ -228,10 +229,6 @@ public OnPlayerConnect(playerid)
 		    printf("%s", e[Message]);
 		}
 	}
-	if(positionLogging)
-	{
-		timer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, "PosiotionLogInterval"), true, "i", playerid);
-	}
 	return 1;
 }
 
@@ -254,6 +251,7 @@ public OnPlayerDisconnect(playerid, reason)
 
 public OnPlayerDeath(playerid, killerid, reason)
 {
+	KillTimer(timer[playerid]);
 	if(deathLogging)
 	{
 		if(killerid != INVALID_PLAYER_ID)
@@ -306,7 +304,7 @@ public OnPlayerText(playerid, text[])
 	return 1;
 }
 
-public OnPlayerCommandText(playerid, cmdtext[])
+public OnPlayerCommandPerformed(playerid, cmdtext[])
 {
 	if(commandLogging)
 	{
@@ -319,7 +317,7 @@ public OnPlayerCommandText(playerid, cmdtext[])
 		    printf("%s", e[Message]);
 		}
 	}
-	return 0;
+	return 1;
 }
 
 public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
@@ -679,188 +677,80 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{
 				    case 0:
 					{
-						if(positionLogging)
-						{
-							positionLogging = 0;
-							dini_IntSet(CONFIG_FILE, "PositionLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							positionLogging = 1;
-							dini_IntSet(CONFIG_FILE, "PositionLogging", 1);
-							Log_Config(playerid);
-						}
+						positionLogging = boolToInt(!positionLogging);
+						dini_IntSet(CONFIG_FILE, "PositionLogging", boolToInt(!positionLogging));
+						Log_Config(playerid);
 					}
 					case 1:
 					{
-					    if(chatLogging)
-						{
-							chatLogging = 0;
-							dini_IntSet(CONFIG_FILE, "ChatLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							chatLogging = 1;
-							dini_IntSet(CONFIG_FILE, "ChatLogging", 1);
-							Log_Config(playerid);
-						}
+						chatLogging = boolToInt(!chatLogging);
+						dini_IntSet(CONFIG_FILE, "ChatLogging", boolToInt(!chatLogging));
+						Log_Config(playerid);
 					}
 					case 2:
 					{
-					   	if(commandLogging)
-						{
-							commandLogging = 0;
-							dini_IntSet(CONFIG_FILE, "CommandLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							commandLogging = 1;
-							dini_IntSet(CONFIG_FILE, "CommandLogging", 1);
-							Log_Config(playerid);
-						}
+						commandLogging = boolToInt(!commandLogging);
+						dini_IntSet(CONFIG_FILE, "CommandLogging", boolToInt(!commandLogging));
+						Log_Config(playerid);
 					}
 					case 3:
 					{
-						if(shootingLogging)
-						{
-							shootingLogging = 0;
-							dini_IntSet(CONFIG_FILE, "ShootingLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							shootingLogging = 1;
-							dini_IntSet(CONFIG_FILE, "ShootingLogging", 1);
-							Log_Config(playerid);
-						}
+						shootingLogging = boolToInt(!shootingLogging);
+						dini_IntSet(CONFIG_FILE, "ShootingLogging", boolToInt(!shootingLogging));
+						Log_Config(playerid);
 					}
 					case 4:
 					{
-					    if(deathLogging)
-						{
-							deathLogging = 0;
-							dini_IntSet(CONFIG_FILE, "DeathLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							deathLogging = 1;
-							dini_IntSet(CONFIG_FILE, "DeathLogging", 1);
-							Log_Config(playerid);
-						}
+						deathLogging = boolToInt(!deathLogging);
+						dini_IntSet(CONFIG_FILE, "DeathLogging", boolToInt(!deathLogging));
+						Log_Config(playerid);
 					}
 					case 5:
 					{
-					    if(connectLogging)
-						{
-							connectLogging = 0;
-							dini_IntSet(CONFIG_FILE, "ConnectLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							connectLogging = 1;
-							dini_IntSet(CONFIG_FILE, "ConnectLogging", 1);
-							Log_Config(playerid);
-						}
+						connectLogging = boolToInt(!connectLogging);
+						dini_IntSet(CONFIG_FILE, "ConnectLogging", boolToInt(!connectLogging));
+						Log_Config(playerid);
 					}
 					case 6:
 					{
-						if(disconnectLogging)
-						{
-							disconnectLogging = 0;
-							dini_IntSet(CONFIG_FILE, "DisconnectLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							disconnectLogging = 1;
-							dini_IntSet(CONFIG_FILE, "DisconnectLogging", 1);
-							Log_Config(playerid);
-						}
+						disconnectLogging = boolToInt(!disconnectLogging);
+						dini_IntSet(CONFIG_FILE, "DisconnectLogging", boolToInt(!disconnectLogging));
+						Log_Config(playerid);
 					}
 					case 7:
 					{
-					    if(interiorLogging)
-						{
-							interiorLogging = 0;
-							dini_IntSet(CONFIG_FILE, "InteriorLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							interiorLogging = 1;
-							dini_IntSet(CONFIG_FILE, "InteriorLogging", 1);
-							Log_Config(playerid);
-						}
+						interiorLogging = boolToInt(!interiorLogging);
+						dini_IntSet(CONFIG_FILE, "InteriorLogging", boolToInt(!interiorLogging));
+						Log_Config(playerid);
 					}
 					case 8:
 					{
-						if(rconLoginLogging)
-						{
-							rconLoginLogging = 0;
-							dini_IntSet(CONFIG_FILE, "RconLoginLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							rconLoginLogging = 1;
-							dini_IntSet(CONFIG_FILE, "RconLoginLogging", 1);
-							Log_Config(playerid);
-						}
+						rconLoginLogging = boolToInt(!rconLoginLogging);
+						dini_IntSet(CONFIG_FILE, "RconLoginLogging", boolToInt(!rconLoginLogging));
+						Log_Config(playerid);
 					}
 					case 9:
 					{
-						if(carEnterLogging)
-						{
-							carEnterLogging = 0;
-							dini_IntSet(CONFIG_FILE, "CarEnterLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							carEnterLogging = 1;
-							dini_IntSet(CONFIG_FILE, "CarEnterLogging", 1);
-							Log_Config(playerid);
-						}
+						carEnterLogging = boolToInt(!carEnterLogging);
+						dini_IntSet(CONFIG_FILE, "CarEnterLogging", boolToInt(!carEnterLogging));
+						Log_Config(playerid);
 					}
 					case 10:
 					{
-						if(carExitLogging)
-						{
-							carExitLogging = 0;
-							dini_IntSet(CONFIG_FILE, "CarExitLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							carExitLogging = 1;
-							dini_IntSet(CONFIG_FILE, "CarExitLogging", 1);
-							Log_Config(playerid);
-						}
+						carExitLogging = boolToInt(!carExitLogging);
+						dini_IntSet(CONFIG_FILE, "CarExitLogging", boolToInt(!carExitLogging));
+						Log_Config(playerid);
 					}
 					case 11:
 					{
-						if(rconCommandLogging)
-						{
-							rconCommandLogging = 0;
-							dini_IntSet(CONFIG_FILE, "RconCommandLogging", 0);
-							Log_Config(playerid);
-						}
-						else
-						{
-							rconCommandLogging = 1;
-							dini_IntSet(CONFIG_FILE, "RconCommandLogging", 1);
-							Log_Config(playerid);
-						}
+						rconCommandLogging = boolToInt(!rconCommandLogging);
+						dini_IntSet(CONFIG_FILE, "RconCommandLogging", boolToInt(!rconCommandLogging));
+						Log_Config(playerid);
 					}
 					case 12:
 					{
 						saveMode++;
-						if(saveMode == 5)
+						if(saveMode >= 5)
 						{
 							saveMode = 1;
 						}
@@ -870,7 +760,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 13:
 					{
 						saveTime++;
-						if(saveTime == 5)
+						if(saveTime >= 5)
 						{
 							saveTime = 0;
 						}
@@ -971,6 +861,16 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 }
 
 //FUNCTIONS
+
+boolToInt(bool:input)
+{
+	if(input)
+	{
+	    return 1;
+	}
+	return 0;
+}
+
 SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 {
     static const STATIC_ARGS = 3;
@@ -1286,6 +1186,7 @@ logChat(playerid, text[])
 	}
 	new logData[190];
 	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
+	printf("%s", logData);
 	new File:logFile = fopen(path, io_append);
 	if(!logFile)
 	{
@@ -1727,8 +1628,7 @@ logPlayerLocation(playerid, Float:X, Float:Y, Float:Z)
 	new path[80];
 	switch(saveMode)
 	{
-		case 1:
-		{
+		case 1:		{
 			format(path, 80, "Logs/%s/Position%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
@@ -2086,15 +1986,18 @@ cleanLog(playerid, logid)
 forward LogLoc(playerid);
 public LogLoc(playerid)
 {
-	new Float:X, Float:Y, Float:Z;
-	GetPlayerPos(playerid, X, Y, Z);
-	try
+	if(positionLogging)
 	{
-		logPlayerLocation(playerid, X, Y, Z);
-	}
-	catch(e)
-	{
-	    printf("%s", e[Message]);
+		new Float:X, Float:Y, Float:Z;
+		GetPlayerPos(playerid, X, Y, Z);
+		try
+		{
+			logPlayerLocation(playerid, X, Y, Z);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	return 1;
 }
