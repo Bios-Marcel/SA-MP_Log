@@ -9,6 +9,24 @@
 #include <a_http>
 #include <zcmd>
 #include <sscanf2>
+#include <exceptions>
+
+//PUBLIC VARIABLES
+new saveTime = 0;
+new positionLogging;
+new chatLogging;
+new commandLogging;
+new shootingLogging;
+new deathLogging;
+new connectLogging;
+new disconnectLogging;
+new interiorLogging;
+new rconLoginLogging;
+new carEnterLogging;
+new carExitLogging;
+new rconCommandLogging;
+new saveMode;
+new timer[MAX_PLAYERS];
 
 //DEFINES
 #define LOGMENU 1
@@ -36,46 +54,9 @@
 #define CULPRIT 1
 #define VICTIM 2
 
-#define FILE "Logs/Config.cfg"
+#define CONFIG_FILE "Logs/Config.cfg"
 
 #define BYTES_PER_CELL 4
-
-//FUTURE PLANS
-#define KEEP_FILES_OPEN 0
-
-//PUBLIC VARIABLES
-new saveTime = 0;
-new positionLogging;
-new chatLogging;
-new commandLogging;
-new shootingLogging;
-new deathLogging;
-new connectLogging;
-new disconnectLogging;
-new interiorLogging;
-new rconLoginLogging;
-new carEnterLogging;
-new carExitLogging;
-new rconCommandLogging;
-new saveMode;
-new timer[MAX_PLAYERS];
-
-//FILEHANDLES
-#if KEEP_FILES_OPEN == 1
-new File:mainLogFile = fopen("Logs/Log.log", io_append);
-
-new File:chatLogFile = fopen("Logs/Chat.log", io_append);
-new File:commandLogFile = fopen("Logs/Command.log", io_append);
-new File:connectLogFile = fopen("Logs/Connect.log", io_append);
-new File:disconnectLogFile = fopen("Logs/Disconnect.log", io_append);
-new File:deathLogFile = fopen("Logs/Death.log", io_append);
-new File:interiorLogFile = fopen("Logs/Interior.log", io_append);
-new File:carEnterLogFile = fopen("Logs/CarEnter.log", io_append);
-new File:carExitLogFile = fopen("Logs/CarExit.log", io_append);
-new File:shootingLogFile = fopen("Logs/Shooting.log", io_append);
-new File:rconLoginLogFile = fopen("Logs/RconLogin.log", io_append);
-new File:positionLogFile = fopen("Logs/Position.log", io_append);
-#endif
 
 //PUBLICS (default)
 public OnFilterScriptInit()
@@ -85,45 +66,45 @@ public OnFilterScriptInit()
 	DirCreate("Logs");
 	if(fexist("Logs/LogConfig.cfg"))
 	{
-		dini_Create(FILE);
-		dini_IntSet(FILE, "PositionLogging",dini_Int("Logs/LogConfig.cfg", "PositionLogging"));
-		dini_IntSet(FILE, "ChatLogging",dini_Int("Logs/LogConfig.cfg", "ChatLogging"));
-		dini_IntSet(FILE, "CommandLogging",dini_Int("Logs/LogConfig.cfg", "CommandLogging"));
-		dini_IntSet(FILE, "ShootingLogging",dini_Int("Logs/LogConfig.cfg", "ShootingLogging"));
-		dini_IntSet(FILE, "DeathLogging",dini_Int("Logs/LogConfig.cfg", "DeathLogging"));
-		dini_IntSet(FILE, "ConnectLogging",dini_Int("Logs/LogConfig.cfg", "ConnectLogging"));
-		dini_IntSet(FILE, "DisconnectLogging",dini_Int("Logs/LogConfig.cfg", "DisconnectLogging"));
-		dini_IntSet(FILE, "InteriorLogging",dini_Int("Logs/LogConfig.cfg", "InteriorLogging"));
-		dini_IntSet(FILE, "RconLoginLogging",dini_Int("Logs/LogConfig.cfg", "RconLoginLogging"));
-		dini_IntSet(FILE, "CarEnterLogging",dini_Int("Logs/LogConfig.cfg", "CarEnterLogging"));
-		dini_IntSet(FILE, "CarExitLogging",dini_Int("Logs/LogConfig.cfg", "CarExitLogging"));
-		dini_IntSet(FILE, "RconCommandLogging",dini_Int("Logs/LogConfig.cfg", "RconCommandLogging"));
-		dini_IntSet(FILE, "SaveMode",dini_Int("Logs/LogConfig.cfg", "SaveMode"));
-		dini_Set(FILE, "LogFilesPerX", "no");
-		dini_IntSet(FILE, "PositionLogInterval",dini_Int("Logs/LogConfig.cfg", "PositionLogInterval"));
+		dini_Create(CONFIG_FILE);
+		dini_IntSet(CONFIG_FILE, "PositionLogging", dini_Int("Logs/LogConfig.cfg", "PositionLogging"));
+		dini_IntSet(CONFIG_FILE, "ChatLogging", dini_Int("Logs/LogConfig.cfg", "ChatLogging"));
+		dini_IntSet(CONFIG_FILE, "CommandLogging", dini_Int("Logs/LogConfig.cfg", "CommandLogging"));
+		dini_IntSet(CONFIG_FILE, "ShootingLogging", dini_Int("Logs/LogConfig.cfg", "ShootingLogging"));
+		dini_IntSet(CONFIG_FILE, "DeathLogging", dini_Int("Logs/LogConfig.cfg", "DeathLogging"));
+		dini_IntSet(CONFIG_FILE, "ConnectLogging", dini_Int("Logs/LogConfig.cfg", "ConnectLogging"));
+		dini_IntSet(CONFIG_FILE, "DisconnectLogging", dini_Int("Logs/LogConfig.cfg", "DisconnectLogging"));
+		dini_IntSet(CONFIG_FILE, "InteriorLogging", dini_Int("Logs/LogConfig.cfg", "InteriorLogging"));
+		dini_IntSet(CONFIG_FILE, "RconLoginLogging", dini_Int("Logs/LogConfig.cfg", "RconLoginLogging"));
+		dini_IntSet(CONFIG_FILE, "CarEnterLogging", dini_Int("Logs/LogConfig.cfg", "CarEnterLogging"));
+		dini_IntSet(CONFIG_FILE, "CarExitLogging", dini_Int("Logs/LogConfig.cfg", "CarExitLogging"));
+		dini_IntSet(CONFIG_FILE, "RconCommandLogging", dini_Int("Logs/LogConfig.cfg", "RconCommandLogging"));
+		dini_IntSet(CONFIG_FILE, "SaveMode", dini_Int("Logs/LogConfig.cfg", "SaveMode"));
+		dini_Set(CONFIG_FILE, "LogFilesPerX", "no");
+		dini_IntSet(CONFIG_FILE, "PositionLogInterval", dini_Int("Logs/LogConfig.cfg", "PositionLogInterval"));
 	}
-	if(dini_Create(FILE))
+	if(dini_Create(CONFIG_FILE))
 	{
-		dini_IntSet(FILE, "PositionLogging", 1);
-		dini_IntSet(FILE, "ChatLogging", 1);
-		dini_IntSet(FILE, "CommandLogging", 1);
-		dini_IntSet(FILE, "ShootingLogging", 1);
-		dini_IntSet(FILE, "DeathLogging", 1);
-		dini_IntSet(FILE, "ConnectLogging", 1);
-		dini_IntSet(FILE, "DisconnectLogging", 1);
-		dini_IntSet(FILE, "InteriorLogging", 1);
-		dini_IntSet(FILE, "RconLoginLogging", 1);
-		dini_IntSet(FILE, "CarEnterLogging", 1);
-		dini_IntSet(FILE, "CarExitLogging", 1);
-		dini_IntSet(FILE, "RconCommandLogging", 1);
-		dini_IntSet(FILE, "SaveMode", 1);
-		dini_Set(FILE, "LogFilesPerX", "no");
-		dini_IntSet(FILE, "PositionLogInterval",1500);
+		dini_IntSet(CONFIG_FILE, "PositionLogging", 1);
+		dini_IntSet(CONFIG_FILE, "ChatLogging", 1);
+		dini_IntSet(CONFIG_FILE, "CommandLogging", 1);
+		dini_IntSet(CONFIG_FILE, "ShootingLogging", 1);
+		dini_IntSet(CONFIG_FILE, "DeathLogging", 1);
+		dini_IntSet(CONFIG_FILE, "ConnectLogging", 1);
+		dini_IntSet(CONFIG_FILE, "DisconnectLogging", 1);
+		dini_IntSet(CONFIG_FILE, "InteriorLogging", 1);
+		dini_IntSet(CONFIG_FILE, "RconLoginLogging", 1);
+		dini_IntSet(CONFIG_FILE, "CarEnterLogging", 1);
+		dini_IntSet(CONFIG_FILE, "CarExitLogging", 1);
+		dini_IntSet(CONFIG_FILE, "RconCommandLogging", 1);
+		dini_IntSet(CONFIG_FILE, "SaveMode", 1);
+		dini_Set(CONFIG_FILE, "LogFilesPerX", "no");
+		dini_IntSet(CONFIG_FILE, "PositionLogInterval", 1500);
 	}
 	LoadCFG();
 	if((saveMode > 4) || (saveMode < 1))
 	{
-		dini_IntSet(FILE, "saveMode", 1);
+		dini_IntSet(CONFIG_FILE, "saveMode", 1);
 		print("[Logging System]The savemode was automatically set to 1 since it wasn't in range of 1 and 4.");
 	}
 	if(saveMode == 4)
@@ -176,10 +157,7 @@ public OnRconCommand(cmd[])
 
 public OnPlayerSpawn(playerid)
 {
-	if(positionLogging)
-	{
-		timer[playerid] = SetTimerEx("LogLoc", dini_Int(FILE, "PosiotionLogInterval"), true, "i", playerid);
-	}
+	//TODO(msc) Log player spawn
 	return 1;
 }
 
@@ -187,7 +165,7 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(shootingLogging)
 	{
-		logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
+	    logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
 		logShooting(issuerid, playerid, amount, weaponid, VICTIM);
 	}
 	return 1;
@@ -211,6 +189,10 @@ public OnPlayerConnect(playerid)
 	{
 		logConnect(playerid);
 	}
+	if(positionLogging)
+	{
+		timer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, "PosiotionLogInterval"), true, "i", playerid);
+	}
 	return 1;
 }
 
@@ -230,12 +212,33 @@ public OnPlayerDeath(playerid, killerid, reason)
 	{
 		if(killerid != INVALID_PLAYER_ID)
 		{
-			logDeath(playerid, killerid, reason, VICTIM);
-			logDeath(killerid, playerid, reason, CULPRIT);
+			try
+			{
+				logDeath(playerid, killerid, reason, VICTIM);
+			}
+			catch(e)
+			{
+			    printf("%s", e[Message]);
+			}
+			try
+			{
+				logDeath(killerid, playerid, reason, CULPRIT);
+		    }
+			catch(e)
+			{
+			    printf("%s", e[Message]);
+			}
 		}
 		else
 		{
-			logDeath(playerid, -1, reason, 0);
+		    try
+		    {
+				logDeath(playerid, -1, reason, 0);
+			}
+			catch(e)
+			{
+			    printf("%s", e[Message]);
+			}
 		}
 	}
 
@@ -245,7 +248,14 @@ public OnPlayerText(playerid, text[])
 {
 	if(chatLogging)
 	{
- 		logChat(playerid, text);
+		try
+		{
+			logChat(playerid, text);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	return 1;
 }
@@ -254,7 +264,14 @@ public OnPlayerCommandText(playerid, cmdtext[])
 {
 	if(commandLogging)
 	{
-		logCommand(playerid, cmdtext);
+		try
+		{
+			logCommand(playerid, cmdtext);
+		}
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	return 0;
 }
@@ -263,7 +280,7 @@ public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
 {
 	if(carEnterLogging)
 	{
-		SetTimerEx("LogCar",3000,false, "i",playerid);
+		SetTimerEx("LogCar", 3000, false, "i", playerid);
 	}
 	return 1;
 }
@@ -272,10 +289,34 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(carExitLogging)
 	{
-		logExitingVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
+		try
+		{
+			logExitingVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
+        }
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
 	}
 	return 1;
 }
+
+public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
+{
+	if(interiorLogging)
+	{
+		try
+		{
+			logInteriorChange(playerid, newinteriorid, oldinteriorid);
+        }
+		catch(e)
+		{
+		    printf("%s", e[Message]);
+		}
+	}
+	return 1;
+}
+
 
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
@@ -292,9 +333,9 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				}
 				else
 				{
-					if(saveTime != 0)
+					if(saveTime == 0)
 					{
-						Log_Config(playerid);
+						Log_Clean(playerid);
 					}
 					else
 					{
@@ -317,7 +358,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			else
 			{
-				Log_Clean(playerid);
+				ShowPlayerDialog(playerid, LOGMENU, DIALOG_STYLE_LIST, "Logmenu", "Configure logs\nClean logs", "Confirm", "Back");
 			}
 		}
 		case SAVEMODE1_CHOOSELOG:
@@ -500,7 +541,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			if(response)
 			{
 				eraseFile("Logs/Position.log");
-				GameTextForPlayer(playerid, "Interior log cleaned successful.", 3000, 5);
+				GameTextForPlayer(playerid, "Position log cleaned successful.", 3000, 5);
 				ShowPlayerDialog(playerid, LOGMENU, DIALOG_STYLE_LIST, "Logmenu", "Configure logs\nClean logs", "Confirm", "Back");
 			}
 			else
@@ -579,6 +620,10 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				cleanLog(playerid, listitem);
 			}
+			else
+			{
+				ShowPlayerDialog(playerid, LOGMENU, DIALOG_STYLE_LIST, "Logmenu", "Configure logs\nClean logs", "Confirm", "Back");
+			}
 		}
 		case LOGCONFIG:
 		{
@@ -591,12 +636,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(positionLogging)
 						{
 							positionLogging = 0;
-							dini_IntSet(FILE, "PositionLogging", 0);
+							dini_IntSet(CONFIG_FILE, "PositionLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							positionLogging = 1;
-							dini_IntSet(FILE, "PositionLogging", 1);
+							dini_IntSet(CONFIG_FILE, "PositionLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 1:
@@ -604,12 +651,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					    if(chatLogging)
 						{
 							chatLogging = 0;
-							dini_IntSet(FILE, "ChatLogging", 0);
+							dini_IntSet(CONFIG_FILE, "ChatLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							chatLogging = 1;
-							dini_IntSet(FILE, "ChatLogging", 1);
+							dini_IntSet(CONFIG_FILE, "ChatLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 2:
@@ -617,12 +666,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					   	if(commandLogging)
 						{
 							commandLogging = 0;
-							dini_IntSet(FILE, "CommandLogging", 0);
+							dini_IntSet(CONFIG_FILE, "CommandLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							commandLogging = 1;
-							dini_IntSet(FILE, "CommandLogging", 1);
+							dini_IntSet(CONFIG_FILE, "CommandLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 3:
@@ -630,12 +681,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(shootingLogging)
 						{
 							shootingLogging = 0;
-							dini_IntSet(FILE, "ShootingLogging", 0);
+							dini_IntSet(CONFIG_FILE, "ShootingLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							shootingLogging = 1;
-							dini_IntSet(FILE, "ShootingLogging", 1);
+							dini_IntSet(CONFIG_FILE, "ShootingLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 4:
@@ -643,12 +696,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					    if(deathLogging)
 						{
 							deathLogging = 0;
-							dini_IntSet(FILE, "DeathLogging", 0);
+							dini_IntSet(CONFIG_FILE, "DeathLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							deathLogging = 1;
-							dini_IntSet(FILE, "DeathLogging", 1);
+							dini_IntSet(CONFIG_FILE, "DeathLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 5:
@@ -656,12 +711,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					    if(connectLogging)
 						{
 							connectLogging = 0;
-							dini_IntSet(FILE, "ConnectLogging", 0);
+							dini_IntSet(CONFIG_FILE, "ConnectLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							connectLogging = 1;
-							dini_IntSet(FILE, "ConnectLogging", 1);
+							dini_IntSet(CONFIG_FILE, "ConnectLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 6:
@@ -669,12 +726,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(disconnectLogging)
 						{
 							disconnectLogging = 0;
-							dini_IntSet(FILE, "DisconnectLogging", 0);
+							dini_IntSet(CONFIG_FILE, "DisconnectLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							disconnectLogging = 1;
-							dini_IntSet(FILE, "DisconnectLogging", 1);
+							dini_IntSet(CONFIG_FILE, "DisconnectLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 7:
@@ -682,12 +741,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					    if(interiorLogging)
 						{
 							interiorLogging = 0;
-							dini_IntSet(FILE, "InteriorLogging", 0);
+							dini_IntSet(CONFIG_FILE, "InteriorLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							interiorLogging = 1;
-							dini_IntSet(FILE, "InteriorLogging", 1);
+							dini_IntSet(CONFIG_FILE, "InteriorLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 8:
@@ -695,12 +756,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(rconLoginLogging)
 						{
 							rconLoginLogging = 0;
-							dini_IntSet(FILE, "RconLoginLogging", 0);
+							dini_IntSet(CONFIG_FILE, "RconLoginLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							rconLoginLogging = 1;
-							dini_IntSet(FILE, "RconLoginLogging", 1);
+							dini_IntSet(CONFIG_FILE, "RconLoginLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 9:
@@ -708,12 +771,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(carEnterLogging)
 						{
 							carEnterLogging = 0;
-							dini_IntSet(FILE, "CarEnterLogging", 0);
+							dini_IntSet(CONFIG_FILE, "CarEnterLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							carEnterLogging = 1;
-							dini_IntSet(FILE, "CarEnterLogging", 1);
+							dini_IntSet(CONFIG_FILE, "CarEnterLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 10:
@@ -721,12 +786,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(carExitLogging)
 						{
 							carExitLogging = 0;
-							dini_IntSet(FILE, "CarExitLogging", 0);
+							dini_IntSet(CONFIG_FILE, "CarExitLogging", 0);
+							Log_Config(playerid);
 						}
 						else
 						{
 							carExitLogging = 1;
-							dini_IntSet(FILE, "CarExitLogging", 1);
+							dini_IntSet(CONFIG_FILE, "CarExitLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 11:
@@ -734,13 +801,14 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						if(rconCommandLogging)
 						{
 							rconCommandLogging = 0;
-							dini_IntSet(FILE, "RconCommandLogging", 0);
+							dini_IntSet(CONFIG_FILE, "RconCommandLogging", 0);
 							Log_Config(playerid);
 						}
 						else
 						{
 							rconCommandLogging = 1;
-							dini_IntSet(FILE, "RconCommandLogging", 1);
+							dini_IntSet(CONFIG_FILE, "RconCommandLogging", 1);
+							Log_Config(playerid);
 						}
 					}
 					case 12:
@@ -750,7 +818,8 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							saveMode = 1;
 						}
-						dini_IntSet(FILE, "SaveMode", saveMode);
+						dini_IntSet(CONFIG_FILE, "SaveMode", saveMode);
+						Log_Config(playerid);
 					}
 					case 13:
 					{
@@ -759,11 +828,12 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						{
 							saveTime = 0;
 						}
-						dini_IntSet(FILE, "LogFilesPerX", saveTime);
+						dini_IntSet(CONFIG_FILE, "LogFilesPerX", saveTime);
+						Log_Config(playerid);
 					}
 					case 14:
 					{
-	    				ShowPlayerDialog(playerid,POSLOGINT, DIALOG_STYLE_INPUT, "Position Log Interval", "Enter a Interval for the player position logging.\nIf u enter a too low interval it may cause problems.\nThe format is milliseconds.", "Select", "Back");
+	    				ShowPlayerDialog(playerid, POSLOGINT, DIALOG_STYLE_INPUT, "Position Log Interval", "Enter a Interval for the player position logging.\nIf u enter a too low interval it may cause problems.\nThe format is milliseconds.", "Select", "Back");
 					}
 					//CASE 15 existiert nicht da dort eine Leere Spalte ist welche keine Funktion haben soll.
 					/*case 15:
@@ -772,59 +842,64 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					case 16:
 					{
 						positionLogging = 0;
-						dini_IntSet(FILE, "PositionLogging", 0);
+						dini_IntSet(CONFIG_FILE, "PositionLogging", 0);
 						chatLogging = 0;
-						dini_IntSet(FILE, "ChatLogging", 0);
+						dini_IntSet(CONFIG_FILE, "ChatLogging", 0);
 						connectLogging = 0;
-						dini_IntSet(FILE, "ConnectLogging", 0);
+						dini_IntSet(CONFIG_FILE, "ConnectLogging", 0);
 						disconnectLogging = 0;
-						dini_IntSet(FILE, "DisconnectLogging", 0);
+						dini_IntSet(CONFIG_FILE, "DisconnectLogging", 0);
 						shootingLogging = 0;
-						dini_IntSet(FILE, "ShootingLogging", 0);
+						dini_IntSet(CONFIG_FILE, "ShootingLogging", 0);
 						deathLogging = 0;
-						dini_IntSet(FILE, "DeathLogging", 0);
+						dini_IntSet(CONFIG_FILE, "DeathLogging", 0);
 						rconLoginLogging = 0;
-						dini_IntSet(FILE, "RconLoginLogging", 0);
+						dini_IntSet(CONFIG_FILE, "RconLoginLogging", 0);
 						interiorLogging = 0;
-						dini_IntSet(FILE, "InteriorLogging", 0);
+						dini_IntSet(CONFIG_FILE, "InteriorLogging", 0);
 						carEnterLogging = 0;
-						dini_IntSet(FILE, "CarEnterLogging", 0);
+						dini_IntSet(CONFIG_FILE, "CarEnterLogging", 0);
 						carExitLogging = 0;
-						dini_IntSet(FILE, "CarExitLogging", 0);
+						dini_IntSet(CONFIG_FILE, "CarExitLogging", 0);
 						commandLogging = 0;
-						dini_IntSet(FILE, "CommandLogging", 0);
+						dini_IntSet(CONFIG_FILE, "CommandLogging", 0);
 						rconCommandLogging = 0;
-						dini_IntSet(FILE, "RconCommandLogging", 0);
+						dini_IntSet(CONFIG_FILE, "RconCommandLogging", 0);
+						Log_Config(playerid);
 					}
 					case 17:
 					{
 						positionLogging = 1;
-						dini_IntSet(FILE, "PositionLogging", 1);
+						dini_IntSet(CONFIG_FILE, "PositionLogging", 1);
 						chatLogging = 1;
-						dini_IntSet(FILE, "ChatLogging", 1);
+						dini_IntSet(CONFIG_FILE, "ChatLogging", 1);
 						connectLogging = 1;
-						dini_IntSet(FILE, "ConnectLogging", 1);
+						dini_IntSet(CONFIG_FILE, "ConnectLogging", 1);
 						disconnectLogging = 1;
-						dini_IntSet(FILE, "DisconnectLogging", 1);
+						dini_IntSet(CONFIG_FILE, "DisconnectLogging", 1);
 						shootingLogging = 1;
-						dini_IntSet(FILE, "ShootingLogging", 1);
+						dini_IntSet(CONFIG_FILE, "ShootingLogging", 1);
 						deathLogging = 1;
-						dini_IntSet(FILE, "DeathLogging", 1);
+						dini_IntSet(CONFIG_FILE, "DeathLogging", 1);
 						rconLoginLogging = 1;
-						dini_IntSet(FILE, "RconLoginLogging", 1);
+						dini_IntSet(CONFIG_FILE, "RconLoginLogging", 1);
 						interiorLogging = 1;
-						dini_IntSet(FILE, "InteriorLogging", 1);
+						dini_IntSet(CONFIG_FILE, "InteriorLogging", 1);
 						carEnterLogging = 1;
-						dini_IntSet(FILE, "CarEnterLogging", 1);
+						dini_IntSet(CONFIG_FILE, "CarEnterLogging", 1);
 						carExitLogging = 1;
-						dini_IntSet(FILE, "CarExitLogging", 1);
+						dini_IntSet(CONFIG_FILE, "CarExitLogging", 1);
 						commandLogging = 1;
-						dini_IntSet(FILE, "CommandLogging", 1);
+						dini_IntSet(CONFIG_FILE, "CommandLogging", 1);
 						rconCommandLogging = 1;
-						dini_IntSet(FILE, "RconCommandLogging", 1);
+						dini_IntSet(CONFIG_FILE, "RconCommandLogging", 1);
+						Log_Config(playerid);
 					}
 				}
-				Log_Config(playerid);
+			}
+			else
+			{
+				ShowPlayerDialog(playerid, LOGMENU, DIALOG_STYLE_LIST, "Logmenu", "Configure logs\nClean logs", "Confirm", "Back");
 			}
 		}
 		case POSLOGINT:
@@ -833,7 +908,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(isNumeric(inputtext))
 				{
-					dini_IntSet(FILE, "PositionLogInterval", strval(inputtext));
+					dini_IntSet(CONFIG_FILE, "PositionLogInterval", strval(inputtext));
 				}
 				else
 				{
@@ -849,15 +924,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 	return 1;
 }
 
-public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
-{
-	if(interiorLogging)
-	{
-		logInteriorChange(playerid, newinteriorid, oldinteriorid);
-	}
-	return 1;
-}
-
 //FUNCTIONS
 SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 {
@@ -865,7 +931,7 @@ SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
     new n = (numargs() - STATIC_ARGS) * BYTES_PER_CELL;
     if(n)
     {
-        new message[144],arg_start,arg_end;
+        new message[144], arg_start, arg_end;
         #emit CONST.alt        fstring
         #emit LCTRL          5
         #emit ADD
@@ -938,73 +1004,73 @@ setLogStatus(playerid, logId, status)
 		case 1:
 		{
 			rconCommandLogging = status;
-			dini_IntSet(FILE, "RconCommandLogging", status);
+			dini_IntSet(CONFIG_FILE, "RconCommandLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Rcon command logging %s.", message);
 		}
 		case 2:
 		{
 			chatLogging = status;
-			dini_IntSet(FILE, "ChatLogging", status);
+			dini_IntSet(CONFIG_FILE, "ChatLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Chat logging %s.", message);
 		}
 		case 3:
 		{
 			commandLogging = status;
-			dini_IntSet(FILE, "CommandLogging", status);
+			dini_IntSet(CONFIG_FILE, "CommandLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Command logging %s.", message);
 		}
 		case 4:
 		{
 			shootingLogging = status;
-			dini_IntSet(FILE, "ShootingLogging", status);
+			dini_IntSet(CONFIG_FILE, "ShootingLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Shooting command logging disabled.");
 		}
 		case 5:
 		{
 			positionLogging = status;
-			dini_IntSet(FILE, "PositionLogging", status);
+			dini_IntSet(CONFIG_FILE, "PositionLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Position command logging %s.", message);
 		}
 		case 6:
 		{
 			rconLoginLogging = status;
-			dini_IntSet(FILE, "RconLoginLogging", status);
+			dini_IntSet(CONFIG_FILE, "RconLoginLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Rcon login logging %s.", message);
 		}
 		case 7:
 		{
 			deathLogging = status;
-			dini_IntSet(FILE, "DeathLogging", status);
+			dini_IntSet(CONFIG_FILE, "DeathLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Death logging %s.", message);
 		}
 		case 8:
 		{
 			connectLogging = status;
-			dini_IntSet(FILE, "ConnectLogging", status);
+			dini_IntSet(CONFIG_FILE, "ConnectLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Connect command logging %s.", message);
 		}
 		case 9:
 		{
 			disconnectLogging = status;
-			dini_IntSet(FILE, "DisconnectLogging", status);
+			dini_IntSet(CONFIG_FILE, "DisconnectLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Disconnect command logging %s.", message);
 		}
 		case 10:
 		{
 			interiorLogging = status;
-			dini_IntSet(FILE, "InteriorLogging", status);
+			dini_IntSet(CONFIG_FILE, "InteriorLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Interior logging %s.", message);
 		}
 		case 11:
 		{
 			carEnterLogging = status;
-			dini_IntSet(FILE, "CarEnterLogging", status);
+			dini_IntSet(CONFIG_FILE, "CarEnterLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Car enter logging %s.", message);
 		}
 		case 12:
 		{
 			carExitLogging = status;
-			dini_IntSet(FILE, "CarExitLogging", status);
+			dini_IntSet(CONFIG_FILE, "CarExitLogging", status);
 			SendClientMessageFormatted(playerid, -1, "[Logging System] Car exit logging %s.", message);
 		}
 		default:
@@ -1042,20 +1108,20 @@ checkVersion()
 **/
 LoadCFG()
 {
-	positionLogging = dini_Int(FILE, "PositionLogging");
-	chatLogging = dini_Int(FILE, "ChatLogging");
-	commandLogging = dini_Int(FILE, "CommandLogging");
-	shootingLogging = dini_Int(FILE, "ShootingLogging");
-	deathLogging = dini_Int(FILE, "DeathLogging");
-	connectLogging = dini_Int(FILE, "ConnectLogging");
-	disconnectLogging = dini_Int(FILE, "DisconnectLogging");
-	interiorLogging = dini_Int(FILE, "InteriorLogging");
-	rconLoginLogging = dini_Int(FILE, "RconLoginLogging");
-	carEnterLogging = dini_Int(FILE, "CarEnterLogging");
-	carExitLogging = dini_Int(FILE, "CarExitLogging");
-	rconCommandLogging = dini_Int(FILE, "RconCommandLogging");
-	saveMode = dini_Int(FILE, "SaveMode");
-	saveTime = dini_Int(FILE, "LogFilesPerX");
+	positionLogging = dini_Int(CONFIG_FILE, "PositionLogging");
+	chatLogging = dini_Int(CONFIG_FILE, "ChatLogging");
+	commandLogging = dini_Int(CONFIG_FILE, "CommandLogging");
+	shootingLogging = dini_Int(CONFIG_FILE, "ShootingLogging");
+	deathLogging = dini_Int(CONFIG_FILE, "DeathLogging");
+	connectLogging = dini_Int(CONFIG_FILE, "ConnectLogging");
+	disconnectLogging = dini_Int(CONFIG_FILE, "DisconnectLogging");
+	interiorLogging = dini_Int(CONFIG_FILE, "InteriorLogging");
+	rconLoginLogging = dini_Int(CONFIG_FILE, "RconLoginLogging");
+	carEnterLogging = dini_Int(CONFIG_FILE, "CarEnterLogging");
+	carExitLogging = dini_Int(CONFIG_FILE, "CarExitLogging");
+	rconCommandLogging = dini_Int(CONFIG_FILE, "RconCommandLogging");
+	saveMode = dini_Int(CONFIG_FILE, "SaveMode");
+	saveTime = dini_Int(CONFIG_FILE, "LogFilesPerX");
 	return 1;
 }
 
@@ -1175,6 +1241,12 @@ logChat(playerid, text[])
 	new logData[190];
 	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1182,24 +1254,24 @@ logChat(playerid, text[])
 
 logConnect(playerid)
 {
-	new path[60];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 60, "Logs/%s/Connect%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Connect%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 60, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 60, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 60, "Logs/Connect%s.log", getTimeInfo());
+			format(path, 80, "Logs/Connect%s.log", getTimeInfo());
 		}
 	}
 	new ip[16];
@@ -1207,6 +1279,12 @@ logConnect(playerid)
  	new logData[100];
 	format(logData, 100, "%s %s connected with IP: %s \r\n\n", getDateAndTime(), getName(playerid), ip);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1214,24 +1292,24 @@ logConnect(playerid)
 
 logDisconnect(playerid, reason)
 {
-	new path[60];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 60, "Logs/%s/Disconnect%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Disconnect%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 60, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 60, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 60, "Logs/Disconnect%s.log", getTimeInfo());
+			format(path, 80, "Logs/Disconnect%s.log", getTimeInfo());
 		}
 	}
 	new ip[16];
@@ -1255,6 +1333,12 @@ logDisconnect(playerid, reason)
 	new logData[100];
 	format(logData, 100, "%s %s (IP:%s) disconnected, reason: %s \r\n\n", getDateAndTime(), getName(playerid), ip, reasonString);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1262,29 +1346,35 @@ logDisconnect(playerid, reason)
 
 logCommand(playerid, cmdtext[])
 {
-	new path[65];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 65, "Logs/%s/Command%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Command%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 65, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 65, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 65, "Logs/Command%s.log", getTimeInfo());
+			format(path, 80, "Logs/Command%s.log", getTimeInfo());
 		}
 	}
 	new logData[200];
 	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), cmdtext);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1292,24 +1382,24 @@ logCommand(playerid, cmdtext[])
 
 logDeath(playerid, killerid, reason, victimcase)
 {
-	new path[63];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 63, "Logs/%s/Death%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Death%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 63, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 63, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 63, "Logs/Death%s.log", getTimeInfo());
+			format(path, 80, "Logs/Death%s.log", getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1329,31 +1419,37 @@ logDeath(playerid, killerid, reason, victimcase)
 		format(logData, 200, "%s %s died, reason: %s \r\n\n", getDateAndTime(), getName(playerid), reason);
 	}
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
 }
 
-logShooting(playerid,damagedid, Float:amount,weaponid,victimcase)
+logShooting(playerid, damagedid, Float:amount, weaponid, victimcase)
 {
-	new path[66];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 66, "Logs/%s/Shooting%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Shooting%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 66, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 66, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 66, "Logs/Shooting%s.log", getTimeInfo());
+			format(path, 80, "Logs/Shooting%s.log", getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1366,36 +1462,48 @@ logShooting(playerid,damagedid, Float:amount,weaponid,victimcase)
 		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), getName(damagedid), getName(playerid), Float:amount, weaponid);
 	}
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
 }
 
-logInteriorChange(playerid, newInterior, oldInterior)
+logInteriorChange(playerid, int1, int2)
 {
-	new path[66];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 66, "Logs/%s/Interior%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Interior%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 66, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 66, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 66, "Logs/Interior%s.log", getTimeInfo());
+			format(path, 80, "Logs/Interior%s.log", getTimeInfo());
 		}
 	}
 	new logData[200];
-	format(logData, 200, "%s %s's new interior: %i, old interior: %i \r\n\n", getDateAndTime(), getName(playerid), newInterior, oldInterior);
+	format(logData, 200, "%s %s's new interior: %i, old interior: %i \r\n\n", getDateAndTime(), getName(playerid), int1, int2);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1403,24 +1511,24 @@ logInteriorChange(playerid, newInterior, oldInterior)
 
 logExitingVehicle(playerid, seat, vehicleid, modelid)
 {
-	new path[66];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 66, "Logs/%s/CarExit%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/CarExit%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 66, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 66, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 66, "Logs/CarExit%s.log", getTimeInfo());
+			format(path, 80, "Logs/CarExit%s.log", getTimeInfo());
 		}
 	}
 	new seatName[10];
@@ -1436,33 +1544,39 @@ logExitingVehicle(playerid, seat, vehicleid, modelid)
 		 }
 	}
 	new logData[200];
-	format(logData, 200, "%s %s exited a vehicle, he/she was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
+	format(logData, 200, "%s %s left a vehicle, he/she was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
 }
 
-logRconLogin(playerid,bool:success, ip[],password[])
+logRconLogin(playerid, bool:success, ip[], password[])
 {
-	new path[67];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 67, "Logs/%s/RconLogin%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/RconLogin%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 67, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 67, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 67, "Logs/RconLogin%s.log", getTimeInfo());
+			format(path, 80, "Logs/RconLogin%s.log", getTimeInfo());
 		}
 	}
 	new logData[200];
@@ -1475,6 +1589,12 @@ logRconLogin(playerid,bool:success, ip[],password[])
 		format(logData, 200, "%s %s (IP:%s) has logged in as RCON \r\n\n", getDateAndTime(), getName(playerid), ip);
 	}
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1497,6 +1617,12 @@ logRconCommand(cmd[])
 	new logData[200];
 	format(logData, 200, "%s /rcon %s \r\n\n", getDateAndTime(), cmd);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1504,24 +1630,24 @@ logRconCommand(cmd[])
 
 logEnteringVehicle(playerid, seat, vehicleid, modelid)
 {
-	new path[67];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 67, "Logs/%s/CarEnter%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/CarEnter%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 67, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 67, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 67, "Logs/CarEnter%s.log", getTimeInfo());
+			format(path, 80, "Logs/CarEnter%s.log", getTimeInfo());
 		}
 	}
 	new seatName[10];
@@ -1539,6 +1665,12 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 	new logData[200];
 	format(logData, 200, "%s %s entered a vehicle, he was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1546,29 +1678,35 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 
 logPlayerLocation(playerid, Float:X, Float:Y, Float:Z)
 {
-	new path[67];
+	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 67, "Logs/%s/Position%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Position%s.log", getName(playerid), getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 67, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
 		}
 		case 3:
 		{
-			format(path, 67, "Logs/Log%s.log", getTimeInfo());
+			format(path, 80, "Logs/Log%s.log", getTimeInfo());
 		}
 		case 4:
 		{
-			format(path, 67, "Logs/Position%s.log", getTimeInfo());
+			format(path, 80, "Logs/Position%s.log", getTimeInfo());
 		}
 	}
 	new logData[150];
 	format(logData, 150, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n", getDateAndTime(), getName(playerid), X, Y, Z);
 	new File:logFile = fopen(path, io_append);
+	if(!logFile)
+	{
+		new errorMessage[100];
+	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
+	    throw new Error(errorMessage);
+	}
 	fwrite(logFile, logData);
 	fclose(logFile);
 	return 1;
@@ -1781,9 +1919,9 @@ Log_Clean(playerid)
 	    }
 	    case 3:
 		{
-			new message[120];
-			format(message, 120, "Are you sure that you want to clean the log file? (Size: %i)", getFileSize("Logs/Log.log"));
-			ShowPlayerDialog(playerid, SAVEMODE3_CLEAN, DIALOG_STYLE_MSGBOX, "Log clean", message, "Confirm", "Back");
+			new msg[120];
+			format(msg, 120, "Are you sure that you want to clean the log file? (Size: %i)", getFileSize("Logs/Log.log"));
+			ShowPlayerDialog(playerid, SAVEMODE3_CLEAN, DIALOG_STYLE_MSGBOX, "Log clean", msg, "Confirm", "Back");
 		}
 		default:
 		{
@@ -1829,7 +1967,7 @@ getLogSizes(playerid)
 	return 1;
 }
 
-cleanLog(playerid,logid)
+cleanLog(playerid, logid)
 {
 	new logcl[125];
 	switch(logid)
@@ -1837,53 +1975,64 @@ cleanLog(playerid,logid)
 		case 0:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Position Log file(Size:%i)", getFileSize("Logs/Position.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_POSITION, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 1:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Chat Log file(Size:%i)", getFileSize("Logs/Chat.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_CHAT, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 2:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Command Log file(Size:%i)", getFileSize("Logs/Command.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_COMMAND, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 3:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Shooting Log file(Size:%i)", getFileSize("Logs/Shooting.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_SHOOTING, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 4:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Death Log file(Size:%i)", getFileSize("Logs/Death.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_DEATH, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 5:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Connect Log file(Size:%i)", getFileSize("Logs/Connect.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_CONNECT, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 6:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Disconnect Log file(Size:%i)", getFileSize("Logs/Disconnect.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_DISCONNECT, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 7:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the Interior Log file(Size:%i)", getFileSize("Logs/Interior.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_INTERIOR, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 8:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the RconLogin Log file(Size:%i)", getFileSize("Logs/RconLogin.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_RCONLOGIN, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 9:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the CarEnter Log file(Size:%i)", getFileSize("Logs/CarEnter.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_CARENTER, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 10:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the CarExit Log file(Size:%i)", getFileSize("Logs/CarExit.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_CAREXIT, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 		case 11:
 		{
 			format(logcl, 125, "Are you sure that you want to clean the RconCommand Log file(Size:%i)", getFileSize("Logs/RconCommand.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_RCONCOMMAND, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
 	}
-	ShowPlayerDialog(playerid, S4_CLEAN_CONNECT, DIALOG_STYLE_LIST, "Log clean",logcl, "Confirm", "Back");
 	return 1;
 }
 
@@ -1893,21 +2042,35 @@ public LogLoc(playerid)
 {
 	new Float:X, Float:Y, Float:Z;
 	GetPlayerPos(playerid, X, Y, Z);
-	logPlayerLocation(playerid, X, Y, Z);
+	try
+	{
+		logPlayerLocation(playerid, X, Y, Z);
+	}
+	catch(e)
+	{
+	    printf("%s", e[Message]);
+	}
 	return 1;
 }
 
 forward LogCar(playerid);
 public LogCar(playerid)
 {
-	logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), GetPlayerVehicleID(playerid), GetVehicleModel(GetPlayerVehicleID(playerid)));
+	try
+	{
+		logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), GetPlayerVehicleID(playerid), GetVehicleModel(GetPlayerVehicleID(playerid)));
+	}
+	catch(e)
+	{
+	    printf("%s", e[Message]);
+	}
 	return 1;
 }
 
 forward MyHttpResponse(index, response_code, data[]);
 public MyHttpResponse(index, response_code, data[])
 {
-	new VERSION[10] = "1.3.1.0.1";
+	new VERSION[9] = "1.3.2";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
@@ -1924,7 +2087,7 @@ public MyHttpResponse(index, response_code, data[])
 }
 
 //COMMANDS
-CMD:logmenu(playerid)
+CMD:logmenu(playerid, params[])
 {
 	if(IsPlayerAdmin(playerid))
 	{
@@ -1933,14 +2096,13 @@ CMD:logmenu(playerid)
 	return 1;
 }
 
-CMD:logenable(playerid,params[])
+CMD:logenable(playerid, params[])
 {
 	if(IsPlayerAdmin(playerid))
 	{
 		new log;
 		if(sscanf(params, "i", log))
 		{
-			SendClientMessage(playerid, -1, "bullshit");
 			SendClientMessage(playerid, -1, "[Logging System] Usage: /logenable [log]");
 			SendClientMessage(playerid, -1, "1 = RconCommandLogging");
 			SendClientMessage(playerid, -1, "2 = ChatLogging");
@@ -1961,7 +2123,7 @@ CMD:logenable(playerid,params[])
 	return 1;
 }
 
-CMD:logdisable(playerid,params[])
+CMD:logdisable(playerid, params[])
 {
 	if(IsPlayerAdmin(playerid))
 	{
@@ -1988,7 +2150,7 @@ CMD:logdisable(playerid,params[])
 	return 1;
 }
 
-CMD:loghelp(playerid)
+CMD:loghelp(playerid, params[])
 {
 	SendClientMessage(playerid, -1, "-------------------[Logging System]-------------------");
 	SendClientMessage(playerid, -1, "/loghelp: displays the helpmessages that u are looking at right now :P.");
@@ -2001,7 +2163,7 @@ CMD:loghelp(playerid)
 	return 1;
 }
 
-CMD:savemodeinfo(playerid)
+CMD:savemodeinfo(playerid, params[])
 {
 	SendClientMessage(playerid, -1 , "[Logging System] Savemode 1 will create a folder for every player and a logfile for every category (Example: JohnCena/Chat.log).");
 	SendClientMessage(playerid, -1 , "[Logging System] Savemode 2 will save all information that has to be logged into per-player files (Example: JohnCena.log).");
@@ -2010,7 +2172,7 @@ CMD:savemodeinfo(playerid)
 	return 1;
 }
 
-CMD:setpositionloginterval(playerid)
+CMD:setpositionloginterval(playerid, params[])
 {
 	if(IsPlayerAdmin(playerid))
 	{
@@ -2019,7 +2181,7 @@ CMD:setpositionloginterval(playerid)
 	return 1;
 }
 
-CMD:logsavemode(playerid,params[])
+CMD:logsavemode(playerid, params[])
 {
 	if(IsPlayerAdmin(playerid))
 	{
@@ -2028,36 +2190,13 @@ CMD:logsavemode(playerid,params[])
 		{
 			return SendClientMessage(playerid, -1, "[Logging System] Usage: /logsavemode [1/2/3/4] \n[Logging System] For information about the diffrent savemodes type /savemodeinfo");
 		}
-		switch(log)
+		if((log >= 1) && (log <= 4))
 		{
-			case 1:
-			{
-				saveMode = 1;
-				dini_IntSet(FILE, "SaveMode", 1);
-				SendClientMessage(playerid, -1, "[Logging System] Savemode has been set to 1.");
-			}
-			case 2:
-			{
-				saveMode = 2;
-				dini_IntSet(FILE, "SaveMode", 2);
-				SendClientMessage(playerid, -1, "[Logging System] Savemode has been set to 2.");
-			}
-			case 3:
-			{
-				saveMode = 3;
-				dini_IntSet(FILE, "SaveMode", 3);
-				SendClientMessage(playerid, -1, "[Logging System] Savemode has been set to 3.");
-			}
-			case 4:
-			{
-				saveMode = 4;
-				dini_IntSet(FILE, "SaveMode", 4);
-				SendClientMessage(playerid, -1, "[Logging System] Savemode has been set to 4.");
-			}
-			default:
-			{
-				SendClientMessage(playerid, -1, "[Logging System] Your input was incorrect, try again.");
-			}
+		    new message[46];
+		    saveMode = log;
+		    dini_IntSet(CONFIG_FILE, "SaveMode", log);
+		    format(message, 46, "[Logging System] Savemode has been set to %i.", log);
+		    SendClientMessage(playerid, -1, message);
 		}
 		SendClientMessage(playerid, -1, "[Logging System] For information about the diffrent savemodes use /savemodeinfo");
 	}
