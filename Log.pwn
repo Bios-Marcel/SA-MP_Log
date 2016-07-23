@@ -65,24 +65,29 @@ public OnFilterScriptInit()
 	print("[Logging System] Log Filterscript loaded.");
  	checkVersion();
 	DirCreate("Logs");
+	
+	//Before the config was called "config.cfg" it was called "LogConfig.cfg" , since i dont want to ruin your settigns i am checking for the old file to transfer it
 	if(fexist("Logs/LogConfig.cfg"))
 	{
-		dini_Create(CONFIG_FILE);
-		dini_IntSet(CONFIG_FILE, "PositionLogging", dini_Int("Logs/LogConfig.cfg", "PositionLogging"));
-		dini_IntSet(CONFIG_FILE, "ChatLogging", dini_Int("Logs/LogConfig.cfg", "ChatLogging"));
-		dini_IntSet(CONFIG_FILE, "CommandLogging", dini_Int("Logs/LogConfig.cfg", "CommandLogging"));
-		dini_IntSet(CONFIG_FILE, "ShootingLogging", dini_Int("Logs/LogConfig.cfg", "ShootingLogging"));
-		dini_IntSet(CONFIG_FILE, "DeathLogging", dini_Int("Logs/LogConfig.cfg", "DeathLogging"));
-		dini_IntSet(CONFIG_FILE, "ConnectLogging", dini_Int("Logs/LogConfig.cfg", "ConnectLogging"));
-		dini_IntSet(CONFIG_FILE, "DisconnectLogging", dini_Int("Logs/LogConfig.cfg", "DisconnectLogging"));
-		dini_IntSet(CONFIG_FILE, "InteriorLogging", dini_Int("Logs/LogConfig.cfg", "InteriorLogging"));
-		dini_IntSet(CONFIG_FILE, "RconLoginLogging", dini_Int("Logs/LogConfig.cfg", "RconLoginLogging"));
-		dini_IntSet(CONFIG_FILE, "CarEnterLogging", dini_Int("Logs/LogConfig.cfg", "CarEnterLogging"));
-		dini_IntSet(CONFIG_FILE, "CarExitLogging", dini_Int("Logs/LogConfig.cfg", "CarExitLogging"));
-		dini_IntSet(CONFIG_FILE, "RconCommandLogging", dini_Int("Logs/LogConfig.cfg", "RconCommandLogging"));
-		dini_IntSet(CONFIG_FILE, "SaveMode", dini_Int("Logs/LogConfig.cfg", "SaveMode"));
-		dini_Set(CONFIG_FILE, "LogFilesPerX", "no");
-		dini_IntSet(CONFIG_FILE, "PositionLogInterval", dini_Int("Logs/LogConfig.cfg", "PositionLogInterval"));
+		if(!fexist(CONFIG_FILE))
+		{
+			dini_Create(CONFIG_FILE);
+			dini_IntSet(CONFIG_FILE, "PositionLogging", dini_Int("Logs/LogConfig.cfg", "PositionLogging"));
+			dini_IntSet(CONFIG_FILE, "ChatLogging", dini_Int("Logs/LogConfig.cfg", "ChatLogging"));
+			dini_IntSet(CONFIG_FILE, "CommandLogging", dini_Int("Logs/LogConfig.cfg", "CommandLogging"));
+			dini_IntSet(CONFIG_FILE, "ShootingLogging", dini_Int("Logs/LogConfig.cfg", "ShootingLogging"));
+			dini_IntSet(CONFIG_FILE, "DeathLogging", dini_Int("Logs/LogConfig.cfg", "DeathLogging"));
+			dini_IntSet(CONFIG_FILE, "ConnectLogging", dini_Int("Logs/LogConfig.cfg", "ConnectLogging"));
+			dini_IntSet(CONFIG_FILE, "DisconnectLogging", dini_Int("Logs/LogConfig.cfg", "DisconnectLogging"));
+			dini_IntSet(CONFIG_FILE, "InteriorLogging", dini_Int("Logs/LogConfig.cfg", "InteriorLogging"));
+			dini_IntSet(CONFIG_FILE, "RconLoginLogging", dini_Int("Logs/LogConfig.cfg", "RconLoginLogging"));
+			dini_IntSet(CONFIG_FILE, "CarEnterLogging", dini_Int("Logs/LogConfig.cfg", "CarEnterLogging"));
+			dini_IntSet(CONFIG_FILE, "CarExitLogging", dini_Int("Logs/LogConfig.cfg", "CarExitLogging"));
+			dini_IntSet(CONFIG_FILE, "RconCommandLogging", dini_Int("Logs/LogConfig.cfg", "RconCommandLogging"));
+			dini_IntSet(CONFIG_FILE, "SaveMode", dini_Int("Logs/LogConfig.cfg", "SaveMode"));
+			dini_Set(CONFIG_FILE, "LogFilesPerX", "no");
+			dini_IntSet(CONFIG_FILE, "PositionLogInterval", dini_Int("Logs/LogConfig.cfg", "PositionLogInterval"));
+		}
 	}
 	if(dini_Create(CONFIG_FILE))
 	{
@@ -102,7 +107,7 @@ public OnFilterScriptInit()
 		dini_Set(CONFIG_FILE, "LogFilesPerX", "no");
 		dini_IntSet(CONFIG_FILE, "PositionLogInterval", 1500);
 	}
-	LoadCFG();
+	loadConfig();
 	if((saveMode > 4) || (saveMode < 1))
 	{
 		dini_IntSet(CONFIG_FILE, "saveMode", 1);
@@ -175,6 +180,8 @@ public OnPlayerSpawn(playerid)
 {
 	if(positionLogging)
 	{
+		//Killing the Timer to prevent any bugs
+	    KillTimer(timer[playerid]);
 		timer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, "PosiotionLogInterval"), true, "i", playerid);
 	}
 	return 1;
@@ -373,13 +380,13 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			{
 				if(listitem == 0)
 				{
-					Log_Config(playerid);
+					updateAndShowLogConfigDialog(playerid);
 				}
 				else
 				{
 					if(saveTime == 0)
 					{
-						Log_Clean(playerid);
+						showLogCleanDialog(playerid);
 					}
 					else
 					{
@@ -677,75 +684,75 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				{
 				    case 0:
 					{
-						positionLogging = boolToInt(!positionLogging);
-						dini_IntSet(CONFIG_FILE, "PositionLogging", boolToInt(!positionLogging));
-						Log_Config(playerid);
+						positionLogging = !positionLogging;
+						dini_IntSet(CONFIG_FILE, "PositionLogging", !positionLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 1:
 					{
-						chatLogging = boolToInt(!chatLogging);
-						dini_IntSet(CONFIG_FILE, "ChatLogging", boolToInt(!chatLogging));
-						Log_Config(playerid);
+						chatLogging = !chatLogging;
+						dini_IntSet(CONFIG_FILE, "ChatLogging", !chatLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 2:
 					{
-						commandLogging = boolToInt(!commandLogging);
-						dini_IntSet(CONFIG_FILE, "CommandLogging", boolToInt(!commandLogging));
-						Log_Config(playerid);
+						commandLogging = !commandLogging;
+						dini_IntSet(CONFIG_FILE, "CommandLogging", !commandLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 3:
 					{
-						shootingLogging = boolToInt(!shootingLogging);
-						dini_IntSet(CONFIG_FILE, "ShootingLogging", boolToInt(!shootingLogging));
-						Log_Config(playerid);
+						shootingLogging = !shootingLogging;
+						dini_IntSet(CONFIG_FILE, "ShootingLogging", !shootingLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 4:
 					{
-						deathLogging = boolToInt(!deathLogging);
-						dini_IntSet(CONFIG_FILE, "DeathLogging", boolToInt(!deathLogging));
-						Log_Config(playerid);
+						deathLogging = !deathLogging;
+						dini_IntSet(CONFIG_FILE, "DeathLogging", !deathLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 5:
 					{
-						connectLogging = boolToInt(!connectLogging);
-						dini_IntSet(CONFIG_FILE, "ConnectLogging", boolToInt(!connectLogging));
-						Log_Config(playerid);
+						connectLogging = !connectLogging;
+						dini_IntSet(CONFIG_FILE, "ConnectLogging", !connectLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 6:
 					{
-						disconnectLogging = boolToInt(!disconnectLogging);
-						dini_IntSet(CONFIG_FILE, "DisconnectLogging", boolToInt(!disconnectLogging));
-						Log_Config(playerid);
+						disconnectLogging = !disconnectLogging;
+						dini_IntSet(CONFIG_FILE, "DisconnectLogging", !disconnectLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 7:
 					{
-						interiorLogging = boolToInt(!interiorLogging);
-						dini_IntSet(CONFIG_FILE, "InteriorLogging", boolToInt(!interiorLogging));
-						Log_Config(playerid);
+						interiorLogging = !interiorLogging;
+						dini_IntSet(CONFIG_FILE, "InteriorLogging", !interiorLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 8:
 					{
-						rconLoginLogging = boolToInt(!rconLoginLogging);
-						dini_IntSet(CONFIG_FILE, "RconLoginLogging", boolToInt(!rconLoginLogging));
-						Log_Config(playerid);
+						rconLoginLogging = !rconLoginLogging;
+						dini_IntSet(CONFIG_FILE, "RconLoginLogging", !rconLoginLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 9:
 					{
-						carEnterLogging = boolToInt(!carEnterLogging);
-						dini_IntSet(CONFIG_FILE, "CarEnterLogging", boolToInt(!carEnterLogging));
-						Log_Config(playerid);
+						carEnterLogging = !carEnterLogging;
+						dini_IntSet(CONFIG_FILE, "CarEnterLogging", !carEnterLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 10:
 					{
-						carExitLogging = boolToInt(!carExitLogging);
-						dini_IntSet(CONFIG_FILE, "CarExitLogging", boolToInt(!carExitLogging));
-						Log_Config(playerid);
+						carExitLogging = !carExitLogging;
+						dini_IntSet(CONFIG_FILE, "CarExitLogging", !carExitLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 11:
 					{
-						rconCommandLogging = boolToInt(!rconCommandLogging);
-						dini_IntSet(CONFIG_FILE, "RconCommandLogging", boolToInt(!rconCommandLogging));
-						Log_Config(playerid);
+						rconCommandLogging = !rconCommandLogging;
+						dini_IntSet(CONFIG_FILE, "RconCommandLogging", !rconCommandLogging);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 12:
 					{
@@ -755,7 +762,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							saveMode = 1;
 						}
 						dini_IntSet(CONFIG_FILE, "SaveMode", saveMode);
-						Log_Config(playerid);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 13:
 					{
@@ -765,7 +772,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 							saveTime = 0;
 						}
 						dini_IntSet(CONFIG_FILE, "LogFilesPerX", saveTime);
-						Log_Config(playerid);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 14:
 					{
@@ -801,7 +808,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dini_IntSet(CONFIG_FILE, "CommandLogging", 0);
 						rconCommandLogging = 0;
 						dini_IntSet(CONFIG_FILE, "RconCommandLogging", 0);
-						Log_Config(playerid);
+						updateAndShowLogConfigDialog(playerid);
 					}
 					case 17:
 					{
@@ -829,7 +836,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 						dini_IntSet(CONFIG_FILE, "CommandLogging", 1);
 						rconCommandLogging = 1;
 						dini_IntSet(CONFIG_FILE, "RconCommandLogging", 1);
-						Log_Config(playerid);
+						updateAndShowLogConfigDialog(playerid);
 					}
 				}
 			}
@@ -853,7 +860,7 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 			}
 			else
 			{
-				Log_Config(playerid);
+				updateAndShowLogConfigDialog(playerid);
 			}
 		}
 	}
@@ -861,15 +868,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 }
 
 //FUNCTIONS
-
-boolToInt(bool:input)
-{
-	if(input)
-	{
-	    return 1;
-	}
-	return 0;
-}
 
 SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 {
@@ -1052,7 +1050,7 @@ checkVersion()
 /**
  * Loads the settings from the file into the variables
 **/
-LoadCFG()
+loadConfig()
 {
 	positionLogging = dini_Int(CONFIG_FILE, "PositionLogging");
 	chatLogging = dini_Int(CONFIG_FILE, "ChatLogging");
@@ -1663,7 +1661,7 @@ logPlayerLocation(playerid, Float:X, Float:Y, Float:Z)
  *
  * @param playerid the player who is supposed to see the updated dialog
 **/
-Log_Config(playerid)
+updateAndShowLogConfigDialog(playerid)
 {
 	new logPartString[14][38];
 	switch(positionLogging)
@@ -1851,7 +1849,7 @@ Log_Config(playerid)
  *
  * @param playerid the player who is supposed to see the dialog
 **/
-Log_Clean(playerid)
+showLogCleanDialog(playerid)
 {
 	switch(saveMode)
 	{
