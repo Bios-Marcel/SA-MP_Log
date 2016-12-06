@@ -63,7 +63,7 @@ new timer[MAX_PLAYERS];
 public OnFilterScriptInit()
 {
 	print("[Logging System] Log Filterscript loaded.");
- 	checkVersion();
+	checkVersion();
 	DirCreate("Logs");
 	
 	if(!fexist(ERROR_LOG_FILE))
@@ -957,7 +957,7 @@ eraseFile(fileName[])
 checkVersion()
 {
 	print("Checking Version");
-	HTTP(1337, HTTP_GET, "twistedeagles.bplaced.net/samplog/version.txt", "", "MyHttpResponse");
+	HTTP(1337, HTTP_GET, "twistedeagles.bplaced.net/samplog/version.txt", "", "versionCheckResponse");
 	return 1;
 }
 
@@ -1851,10 +1851,10 @@ public LogCar(playerid)
 	return 1;
 }
 
-forward MyHttpResponse(index, response_code, data[]);
-public MyHttpResponse(index, response_code, data[])
+forward versionCheckResponse(index, response_code, data[]);
+public versionCheckResponse(index, response_code, data[])
 {
-	new VERSION[9] = "1.3.2";
+	new VERSION[9] = "1.3.3";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
@@ -1862,6 +1862,7 @@ public MyHttpResponse(index, response_code, data[])
 		printf("[Logging System] Your Version: %s", VERSION);
 		print("[Logging System] Downloadlink: https://github.com/Bios-Marcel/SA-MP_Log/releases/latest");
 		print("[Logging System] Downloadlink(shortend): http://bit.ly/1TghSTT");
+		print("Logging System] If the update notification keeps appearing you can ignore it.");
 	}
 	else
 	{
