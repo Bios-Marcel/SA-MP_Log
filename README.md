@@ -1,5 +1,3 @@
-Hello People,
-
 Thanks to the creators of:
 - zcmd
 - sscanf
@@ -51,9 +49,9 @@ Well, I kind of am afraid that my filterscript causes performance / memory probl
 ## Future Plans:
 
 - Better Documentation
-- Improve Performance
+- Improve Performance (Which might be hard when using the file system to log)
 
 ## Version:
-1.3.1.0.1 (17.05.2016)
+1.3.3 (06.12.2016)
 
 greetings Marcel
