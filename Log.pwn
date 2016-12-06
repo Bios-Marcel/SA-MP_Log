@@ -9,7 +9,6 @@
 #include <a_http>
 #include <zcmd>
 #include <sscanf2>
-#include <exceptions>
 
 //DEFINES
 #define LOGMENU 1
@@ -38,6 +37,7 @@
 #define VICTIM 2
 
 #define CONFIG_FILE "Logs/Config.cfg"
+#define ERROR_LOG_FILE "Logs/ErrorLog.log"
 
 #define BYTES_PER_CELL 4
 
@@ -65,6 +65,11 @@ public OnFilterScriptInit()
 	print("[Logging System] Log Filterscript loaded.");
  	checkVersion();
 	DirCreate("Logs");
+	
+	if(!fexist(ERROR_LOG_FILE))
+	{
+	    dini_Create(ERROR_LOG_FILE);
+	}
 	
 	//Before the config was called "config.cfg" it was called "LogConfig.cfg" , since i dont want to ruin your settigns i am checking for the old file to transfer it
 	if(fexist("Logs/LogConfig.cfg"))
@@ -147,15 +152,8 @@ public OnRconLoginAttempt(ip[], password[], success)
 			GetPlayerIp(i, IP, 16);
 			if(!strcmp(ip, IP, true))
 			{
-				try
-				{
-					logRconLogin(i, success ? true : false, ip, password);
-					break;
-				}
-				catch(e)
-				{
-				    printf("%s", e[Message]);
-				}
+				logRconLogin(i, success ? true : false, ip, password);
+				break;
 			}
 		}
 	}
@@ -165,14 +163,7 @@ public OnRconLoginAttempt(ip[], password[], success)
 public OnRconCommand(cmd[])
 {
 	printf("RCON: %s", cmd);
- 	try
- 	{
-		logRconCommand(cmd);
-    }
-	catch(e)
-	{
-	    printf("%s", e[Message]);
-	}
+	logRconCommand(cmd);
 	return 1;
 }
 
@@ -191,22 +182,8 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(shootingLogging)
 	{
-		try
-		{
-			logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
-		try
-		{
-			logShooting(issuerid, playerid, amount, weaponid, VICTIM);
-        }
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
+		logShooting(issuerid, playerid, amount, weaponid, VICTIM);
 	}
 	return 1;
 }
@@ -227,14 +204,7 @@ public OnPlayerConnect(playerid)
 	}
 	if(connectLogging)
 	{
-		try
-		{
-			logConnect(playerid);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logConnect(playerid);
 	}
 	return 1;
 }
@@ -244,14 +214,7 @@ public OnPlayerDisconnect(playerid, reason)
 	KillTimer(timer[playerid]);
 	if(disconnectLogging)
 	{
-	    try
-	    {
-			logDisconnect(playerid, reason);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+	    logDisconnect(playerid, reason);
 	}
  	return 1;
 }
@@ -263,33 +226,12 @@ public OnPlayerDeath(playerid, killerid, reason)
 	{
 		if(killerid != INVALID_PLAYER_ID)
 		{
-			try
-			{
-				logDeath(playerid, killerid, reason, VICTIM);
-			}
-			catch(e)
-			{
-			    printf("%s", e[Message]);
-			}
-			try
-			{
-				logDeath(killerid, playerid, reason, CULPRIT);
-		    }
-			catch(e)
-			{
-			    printf("%s", e[Message]);
-			}
+			logDeath(playerid, killerid, reason, VICTIM);
+			logDeath(killerid, playerid, reason, CULPRIT);
 		}
 		else
 		{
-		    try
-		    {
-				logDeath(playerid, -1, reason, 0);
-			}
-			catch(e)
-			{
-			    printf("%s", e[Message]);
-			}
+		    logDeath(playerid, -1, reason, 0);
 		}
 	}
 
@@ -299,14 +241,7 @@ public OnPlayerText(playerid, text[])
 {
 	if(chatLogging)
 	{
-		try
-		{
-			logChat(playerid, text);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logChat(playerid, text);
 	}
 	return 1;
 }
@@ -315,14 +250,7 @@ public OnPlayerCommandPerformed(playerid, cmdtext[])
 {
 	if(commandLogging)
 	{
-		try
-		{
-			logCommand(playerid, cmdtext);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logCommand(playerid, cmdtext);
 	}
 	return 1;
 }
@@ -340,14 +268,7 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(carExitLogging)
 	{
-		try
-		{
-			logExitingVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
-        }
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logExitingVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
 	}
 	return 1;
 }
@@ -356,14 +277,7 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 {
 	if(interiorLogging)
 	{
-		try
-		{
-			logInteriorChange(playerid, newinteriorid, oldinteriorid);
-        }
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logInteriorChange(playerid, newinteriorid, oldinteriorid);
 	}
 	return 1;
 }
@@ -928,9 +842,9 @@ SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 /**
  * Enabled / disables the given log
  *
- * @param playerid playerid that receives the message
- * @param logId the log that is to deactivate/activate
- * @param status status on or off (1 or 0)
+ * playerid playerid that receives the message
+ * logId the log that is to deactivate/activate
+ * status status on or off (1 or 0)
 **/
 setLogStatus(playerid, logId, status)
 {
@@ -1027,7 +941,7 @@ setLogStatus(playerid, logId, status)
 /**
  * Deletes a file and creates it afterwards
  *
- * @param fileName The string of the file name that you want to be recreated
+ * fileName The string of the file name that you want to be recreated
 **/
 eraseFile(fileName[])
 {
@@ -1071,8 +985,6 @@ loadConfig()
 
 /**
  * Returns the full time and date (Day,Month,Year,Hour,Minute,Second)
- *
- * @return time and date
 **/
 getDateAndTime()
 {
@@ -1091,8 +1003,6 @@ getDateAndTime()
 
 /**
  * Returns the time and date, depending on how much of it is needed
- *
- * @return time and date
 **/
 getTimeInfo()
 {
@@ -1132,8 +1042,8 @@ getTimeInfo()
 /**
  * Checks if the given string is numeric
  *
- * @param string the string that is to check
- * @return 1 if it is numeric and 0 if it isn't
+ * string the string that is to check
+ * returns 1 if it is numeric and 0 if it isn't
 **/
 isNumeric(const string[])
 {
@@ -1150,14 +1060,48 @@ isNumeric(const string[])
 /**
  * Returns a players name
  *
- * @param playerid the players id that you want to get the name from
- * @return the players name
+ * playerid the players id that you want to get the name from
+ * returns the players name
 **/
 getName(playerid)
 {
 	new name[MAX_PLAYER_NAME];
 	GetPlayerName(playerid, name, MAX_PLAYER_NAME);
 	return name;
+}
+
+writeDataIfPossible(path[], logData[])
+{
+	new File:logFile = fopen(path, io_append);
+	if(logFile)
+	{
+	    fwrite(logFile, logData);
+		fclose(logFile);
+		return 1;
+	}
+	else
+	{
+	    new errorData[100];
+		format(errorData, 100, "%s Couldn't log data to %s \r\n\n", getDateAndTime(), path);
+		logError(errorData);
+	    return 0;
+	}
+}
+
+logError(errorData[])
+{
+	new File:logFile = fopen(ERROR_LOG_FILE, io_append);
+	if(logFile)
+	{
+	    fwrite(logFile, errorData);
+		fclose(logFile);
+		return 1;
+	}
+	else
+	{
+	    printf("Couldn't log Error: %s", errorData);
+	}
+	return 0;
 }
 
 logChat(playerid, text[])
@@ -1184,16 +1128,7 @@ logChat(playerid, text[])
 	}
 	new logData[190];
 	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
-	printf("%s", logData);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1223,15 +1158,7 @@ logConnect(playerid)
 	GetPlayerIp(playerid, ip, 16);
  	new logData[100];
 	format(logData, 100, "%s %s connected with IP: %s \r\n\n", getDateAndTime(), getName(playerid), ip);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1277,15 +1204,7 @@ logDisconnect(playerid, reason)
 	}
 	new logData[100];
 	format(logData, 100, "%s %s (IP:%s) disconnected, reason: %s \r\n\n", getDateAndTime(), getName(playerid), ip, reasonString);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1313,15 +1232,7 @@ logCommand(playerid, cmdtext[])
 	}
 	new logData[200];
 	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), cmdtext);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1363,15 +1274,7 @@ logDeath(playerid, killerid, reason, victimcase)
 	{
 		format(logData, 200, "%s %s died, reason: %s \r\n\n", getDateAndTime(), getName(playerid), reason);
 	}
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1406,15 +1309,7 @@ logShooting(playerid, damagedid, Float:amount, weaponid, victimcase)
 	{
 		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), getName(damagedid), getName(playerid), Float:amount, weaponid);
 	}
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1442,15 +1337,7 @@ logInteriorChange(playerid, int1, int2)
 	}
 	new logData[200];
 	format(logData, 200, "%s %s's new interior: %i, old interior: %i \r\n\n", getDateAndTime(), getName(playerid), int1, int2);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1490,15 +1377,7 @@ logExitingVehicle(playerid, seat, vehicleid, modelid)
 	}
 	new logData[200];
 	format(logData, 200, "%s %s left a vehicle, he/she was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1533,15 +1412,7 @@ logRconLogin(playerid, bool:success, ip[], password[])
 	{
 		format(logData, 200, "%s %s (IP:%s) has logged in as RCON \r\n\n", getDateAndTime(), getName(playerid), ip);
 	}
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1561,15 +1432,7 @@ logRconCommand(cmd[])
 	}
 	new logData[200];
 	format(logData, 200, "%s /rcon %s \r\n\n", getDateAndTime(), cmd);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1609,15 +1472,7 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 	}
 	new logData[200];
 	format(logData, 200, "%s %s entered a vehicle, he was a %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
@@ -1644,22 +1499,14 @@ logPlayerLocation(playerid, Float:X, Float:Y, Float:Z)
 	}
 	new logData[150];
 	format(logData, 150, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n", getDateAndTime(), getName(playerid), X, Y, Z);
-	new File:logFile = fopen(path, io_append);
-	if(!logFile)
-	{
-		new errorMessage[100];
-	    format(errorMessage, 100, "Fehler beim Zugriff auf die Datei: %s" , path);
-	    throw new Error(errorMessage);
-	}
-	fwrite(logFile, logData);
-	fclose(logFile);
+	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 /**
  * Updates the menu dialog
  *
- * @param playerid the player who is supposed to see the updated dialog
+ * playerid the player who is supposed to see the updated dialog
 **/
 updateAndShowLogConfigDialog(playerid)
 {
@@ -1847,7 +1694,7 @@ updateAndShowLogConfigDialog(playerid)
 /**
  * Shows the log clean dialog depending on the SaveMode that is set
  *
- * @param playerid the player who is supposed to see the dialog
+ * playerid the player who is supposed to see the dialog
 **/
 showLogCleanDialog(playerid)
 {
@@ -1875,19 +1722,23 @@ showLogCleanDialog(playerid)
 	return 1;
 }
 
+
+
 /**
  * Returns the filesize of a specific file
  *
- * @param filename the name of the file thats to check
- *
- * @return the filesize
+ * filename the name of the file thats to check
 **/
 getFileSize(filename[])
 {
 	new File:sizetoget = fopen(filename, io_read);
-	new fileLength = flength(sizetoget);
-	fclose(sizetoget);
-	return fileLength;
+	if(sizetoget)
+	{
+		new fileLength = flength(sizetoget);
+		fclose(sizetoget);
+		return fileLength;
+	}
+	return 0;
 }
 
 getLogSizes(playerid)
@@ -1988,14 +1839,7 @@ public LogLoc(playerid)
 	{
 		new Float:X, Float:Y, Float:Z;
 		GetPlayerPos(playerid, X, Y, Z);
-		try
-		{
-			logPlayerLocation(playerid, X, Y, Z);
-		}
-		catch(e)
-		{
-		    printf("%s", e[Message]);
-		}
+		logPlayerLocation(playerid, X, Y, Z);
 	}
 	return 1;
 }
@@ -2003,14 +1847,7 @@ public LogLoc(playerid)
 forward LogCar(playerid);
 public LogCar(playerid)
 {
-	try
-	{
-		logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), GetPlayerVehicleID(playerid), GetVehicleModel(GetPlayerVehicleID(playerid)));
-	}
-	catch(e)
-	{
-	    printf("%s", e[Message]);
-	}
+	logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), GetPlayerVehicleID(playerid), GetVehicleModel(GetPlayerVehicleID(playerid)));
 	return 1;
 }
 
