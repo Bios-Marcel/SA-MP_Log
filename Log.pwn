@@ -957,7 +957,7 @@ eraseFile(fileName[])
 checkVersion()
 {
 	print("Checking Version");
-	HTTP(1337, HTTP_GET, "https://github.com/Bios-Marcel/SA-MP_Log/raw/master/version.info", "", "versionCheckResponse");
+	HTTP(1337, HTTP_GET, "loggingsystem.w4f.eu/version.txt", "", "versionCheckResponse");
 	return 1;
 }
 
@@ -1860,7 +1860,7 @@ public versionCheckResponse(index, response_code, data[])
 		print("[Logging System] The Logging filterscript needs an update.");
 		printf("[Logging System] Latest Version: %s", data);
 		printf("[Logging System] Your Version: %s", VERSION);
-		print("[Logging System] Downloadlink: https://github.com/Bios-Marcel/SA-MP_Log/releases/latest");
+		print("[Logging System] Downloadlink: http://github.com/Bios-Marcel/SA-MP_Log/releases/latest");
 		print("[Logging System] Downloadlink(shortend): http://bit.ly/1TghSTT");
 		print("Logging System] If the update notification keeps appearing you can ignore it.");
 	}
