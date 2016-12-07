@@ -957,7 +957,7 @@ eraseFile(fileName[])
 checkVersion()
 {
 	print("Checking Version");
-	HTTP(1337, HTTP_GET, "twistedeagles.bplaced.net/samplog/version.txt", "", "versionCheckResponse");
+	HTTP(1337, HTTP_GET, "https://github.com/Bios-Marcel/SA-MP_Log/raw/master/version.info", "", "versionCheckResponse");
 	return 1;
 }
 
@@ -1854,7 +1854,7 @@ public LogCar(playerid)
 forward versionCheckResponse(index, response_code, data[]);
 public versionCheckResponse(index, response_code, data[])
 {
-	new VERSION[9] = "1.3.3";
+	new VERSION[9] = "1.3.3.1";
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
