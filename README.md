@@ -36,10 +36,6 @@ Single Commands for all settings are in developement (I am a bit lazy that's why
 
 If you find any bugs, have ideas for improvment or new features, psot them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
 
-And if u want to, you can also send in ideas or requests.
-
-filenameformat: log-bug-day-month-year / log-idea-day-month-year / log-request-day-month-year
-
 ## Problems:
 
 Well, I kind of am afraid that my filterscript causes performance / memory problems since i a lot of files are being opened and closed very often, so i'd be pleased if the people who use this tell me if it causes problems, if it does i can create an extra version for u that has less possibilites but wont lower the performance (only the memory ^^) like hell.
