@@ -46,7 +46,8 @@ Might cause performance problems on bigger servers depending on the settings tha
 ## Future Plans:
 
 - Better Documentation
-- Improve Performance (Which might be hard when using the file system to log)
+- Functionallity to read logs ingame
+- Control everything pee commands
 
 ## Version:
 1.3.3.3 (10.12.2016)
