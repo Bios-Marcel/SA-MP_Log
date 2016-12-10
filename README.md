@@ -47,7 +47,7 @@ Might cause performance problems on bigger servers depending on the settings tha
 
 - Better Documentation
 - Functionallity to read logs ingame
-- Control everything pee commands
+- Control everything per commands
 
 ## Version:
 1.3.3.3 (10.12.2016)
