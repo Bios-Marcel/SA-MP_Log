@@ -76,9 +76,19 @@ new carEnterLogging;
 new carExitLogging;
 new rconCommandLogging;
 new saveMode;
-new timer[MAX_PLAYERS];
+new playerLocationLogTimer[MAX_PLAYERS];
 
 //PUBLICS (default)
+/*
+Description:
+This callback is called when a filterscript is initialized (loaded). It is only called inside the filterscript which is starting.
+
+Parameters:
+This callback has no parameters.
+
+Return Values:
+This callback does not handle returns.
+*/
 public OnFilterScriptInit()
 {
 	print("[Logging System] Log Filterscript loaded.");
@@ -126,10 +136,10 @@ public OnFilterScriptInit()
 		dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, 1);
 		dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, 1);
 		dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, 1);
-		dini_IntSet(CONFIG_FILE, RCON_COMMAND_LOGGING, 1);
+		dini_IntSet(CONFIG_FILE, RCON_COMMAND_LOGGING, 0);
 		dini_IntSet(CONFIG_FILE, SAVE_MODE, 1);
 		dini_Set(CONFIG_FILE, LOG_FILES_PER_X, "no");
-		dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, 1500);
+		dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, 3000);
 	}
 	loadConfig();
 	if((saveMode > 4) || (saveMode < 1))
@@ -161,6 +171,19 @@ public OnFilterScriptInit()
 	return 1;
 }
 
+/*
+Description:
+This callback is called when someone attempts to log in to RCON in-game; successful or not.
+
+Parameters:
+(ip[], password[], success)
+ip[]	The IP of the player that tried to log in to RCON.
+password[]	The password used to login with.
+success		0 if the password was incorrect or 1 if it was correct.
+
+Return Values:
+This callback does not handle returns.
+*/
 public OnRconLoginAttempt(ip[], password[], success)
 {
 	if(rconLoginLogging)
@@ -179,6 +202,17 @@ public OnRconLoginAttempt(ip[], password[], success)
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a command is sent through the server console, remote RCON, or via the in-game /rcon command.
+
+Parameters:
+(cmd[])
+cmd[]	A string containing the command that was typed, as well as any passed parameters.
+
+Return Values:
+0 if the command was not processed, it will be passed to another script or 1 if the command was processed, will not be passed to other scripts.
+*/
 public OnRconCommand(cmd[])
 {
 	printf("RCON: %s", cmd);
@@ -186,17 +220,45 @@ public OnRconCommand(cmd[])
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player spawns.(i.e. after caling SpawnPlayer function)
+
+Parameters:
+(playerid)
+playerid	The ID of the player that spawned.
+
+Return Values:
+Returning 0 in this callback will force the player back to class selection when they next spawn.
+*/
 public OnPlayerSpawn(playerid)
 {
 	if(positionLogging)
 	{
 		//Killing the Timer to prevent any bugs
-	    KillTimer(timer[playerid]);
-		timer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, POSITION_LOG_INTERVAL), true, "i", playerid);
+	    KillTimer(playerLocationLogTimer[playerid]);
+		playerLocationLogTimer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, POSITION_LOG_INTERVAL), true, "i", playerid);
 	}
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player takes damage.
+
+Parameters:
+(playerid, issuerid, Float:amount, weaponid, bodypart)
+playerid	The ID of the player that took damage.
+issuerid	The ID of the player that caused the damage. INVALID_PLAYER_ID if self-inflicted.
+amount		The amount of damage the player took (health and armour combined).
+weaponid	The ID of the weapon/reason for the damage.
+bodypart	The body part that was hit. (NOTE: This parameter was added in 0.3z. Leave it out if using an older version!)
+
+Return Values:
+1 - Callback will not be called in other filterscripts.
+0 - Allows this callback to be called in other filterscripts.
+It is always called first in filterscripts so returning 1 there blocks other filterscripts from seeing it
+*/
 public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 {
 	if(shootingLogging)
@@ -207,6 +269,18 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player connects to the server.
+
+Parameters:
+(playerid)
+playerid	The ID of the player that connected.
+
+Return Values:
+0 - Will prevent other filterscripts from receiving this callback.
+1 - Indicates that this callback will be passed to the next filterscript.
+*/
 public OnPlayerConnect(playerid)
 {
 	if(saveMode == 1)
@@ -228,9 +302,22 @@ public OnPlayerConnect(playerid)
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player disconnects from the server.
+
+Parameters:
+(playerid, reason)
+playerid	The ID of the player that disconnected.
+reason		The reason for the disconnection. See table below.
+
+Return Values:
+0 - Will prevent other filterscripts from receiving this callback.
+1 - Indicates that this callback will be passed to the next filterscript.
+*/
 public OnPlayerDisconnect(playerid, reason)
 {
-	KillTimer(timer[playerid]);
+	KillTimer(playerLocationLogTimer[playerid]);
 	if(disconnectLogging)
 	{
 	    logDisconnect(playerid, reason);
@@ -238,9 +325,22 @@ public OnPlayerDisconnect(playerid, reason)
  	return 1;
 }
 
+/*
+Description:
+This callback is called when a player dies, either by suicide or by being killed by another player.
+
+Parameters:
+(playerid, killerid, reason)
+playerid	The ID of the player that died.
+killerid	The ID of the player that killed the player who died, or INVALID_PLAYER_ID if there was none.
+reason		The ID of the reason for the player's death.
+
+Return Values:
+This callback does not handle returns.
+*/
 public OnPlayerDeath(playerid, killerid, reason)
 {
-	KillTimer(timer[playerid]);
+	KillTimer(playerLocationLogTimer[playerid]);
 	if(deathLogging)
 	{
 		if(killerid != INVALID_PLAYER_ID)
@@ -256,6 +356,18 @@ public OnPlayerDeath(playerid, killerid, reason)
 
 }
 
+/*
+Description:
+Called when a player sends a chat message.
+
+Parameters:
+(playerid, text)
+playerid	The ID of the player who typed the text.
+text[]		The text the player typed.
+
+Return Values:
+Returning 0 in this callback will stop the text from being sent to all players
+*/
 public OnPlayerText(playerid, text[])
 {
 	if(chatLogging)
@@ -274,15 +386,18 @@ public OnPlayerCommandPerformed(playerid, cmdtext[])
 	return 1;
 }
 
-public OnPlayerEnterVehicle(playerid, vehicleid, ispassenger)
-{
-	if(carEnterLogging)
-	{
-		SetTimerEx("LogCar", 3000, false, "i", playerid);
-	}
-	return 1;
-}
+/*
+Description:
+This callback is called when a player starts to exit a vehicle.
 
+Parameters:
+(playerid, vehicleid)
+playerid	The ID of the player that is exiting a vehicle.
+vehicleid	The ID of the vehicle the player is exiting.
+
+Return Values:
+This callback does not handle returns.
+*/
 public OnPlayerExitVehicle(playerid, vehicleid)
 {
 	if(carExitLogging)
@@ -292,6 +407,44 @@ public OnPlayerExitVehicle(playerid, vehicleid)
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player changes state. For example, when a player changes from being the driver of a vehicle to being on-foot.
+
+Parameters:
+(playerid, newstate, oldstate)
+playerid	The ID of the player that changed state.
+newstate	The player's new state.
+oldstate	The player's previous state.
+
+Return Values:
+This callback does not handle returns.
+*/
+public OnPlayerStateChange(playerid, newstate, oldstate)
+{
+	if(carEnterLogging)
+	{
+		if(!(oldstate == PLAYER_STATE_DRIVER || oldstate == PLAYER_STATE_PASSENGER) && (newstate == PLAYER_STATE_DRIVER || newstate == PLAYER_STATE_PASSENGER))
+	    {
+	        new vehicleid = GetPlayerVehicleID(playerid);
+		    logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
+	    }
+	}
+}
+
+/*
+Description:
+Called when a player changes interior. Can be triggered by SetPlayerInterior or when a player enter/exits a building.
+
+Parameters:
+(playerid, newinteriorid, oldinteriorid)
+playerid		The playerid who changed interior.
+newinteriorid	The interior the player is now in.
+oldinteriorid	The interior the player was in before.
+
+Return Values:
+This callback does not handle returns.
+*/
 public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 {
 	if(interiorLogging)
@@ -301,7 +454,21 @@ public OnPlayerInteriorChange(playerid, newinteriorid, oldinteriorid)
 	return 1;
 }
 
+/*
+Description:
+This callback is called when a player responds to a dialog shown using ShowPlayerDialog by either clicking a button, pressing ENTER/ESC or double-clicking a list item (if using a list style dialog).
 
+Parameters:
+(playerid, dialogid, response, listitem, inputtext[])
+playerid	The ID of the player that responded to the dialog.
+dialogid	The ID of the dialog the player responded to, assigned in ShowPlayerDialog.
+response	1 for left button and 0 for right button (if only one button shown, always 1)
+listitem	The ID of the list item selected by the player (starts at 0) (only if using a list style dialog).
+inputtext[]	The text entered into the input box by the player or the selected list item text.
+
+Return Values:
+Returning 0 in this callback will pass the dialog to another script in case no matching code were found in your gamemode's callback.
+*/
 public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 {
 	new gPath[70];
@@ -801,7 +968,6 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 }
 
 //FUNCTIONS
-
 SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 {
     static const STATIC_ARGS = 3;
@@ -861,9 +1027,9 @@ SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
 /**
  * Enabled / disables the given log
  *
- * playerid playerid that receives the message
- * logId the log that is to deactivate/activate
- * status status on or off (1 or 0)
+ * playerid	that receives the message
+ * logId 	the log that is to deactivate/activate
+ * status 	status on or off (1 or 0)
 **/
 setLogStatus(playerid, logId, status)
 {
@@ -958,7 +1124,7 @@ setLogStatus(playerid, logId, status)
 }
 
 /**
- * Deletes a file and creates it afterwards
+ * "erases" a file by deleting and recreating it
  *
  * fileName The string of the file name that you want to be recreated
 **/
@@ -1003,7 +1169,7 @@ loadConfig()
 }
 
 /**
- * Returns the full time and date (Day,Month,Year,Hour,Minute,Second)
+ * Returns the full time and date (Day, Month, Year, Hour, Minute, Second)
 **/
 getDateAndTime()
 {
@@ -1054,6 +1220,10 @@ getTimeInfo()
 		{
 			format(date, 16, "-%04d", year);
 		}
+  		default:
+  		{
+  		    date = "";
+		}
 	}
 	return date;
 }
@@ -1061,8 +1231,8 @@ getTimeInfo()
 /**
  * Checks if the given string is numeric
  *
- * string the string that is to check
- * returns 1 if it is numeric and 0 if it isn't
+ * string 	the string that is to check
+ * returns 	1 if it is numeric and 0 if it isn't
 **/
 isNumeric(const string[])
 {
@@ -1080,7 +1250,7 @@ isNumeric(const string[])
  * Returns a players name
  *
  * playerid the players id that you want to get the name from
- * returns the players name
+ * returns 	the players name
 **/
 getName(playerid)
 {
@@ -1125,16 +1295,18 @@ logError(errorData[])
 
 logChat(playerid, text[])
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[62];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 62, "Logs/%s/Chat%s.log", getName(playerid), getTimeInfo());
+			format(path, 62, "Logs/%s/Chat%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 62, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 62, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1146,23 +1318,25 @@ logChat(playerid, text[])
 		}
 	}
 	new logData[190];
-	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), text);
+	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), name, text);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logConnect(playerid)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Connect%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Connect%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1176,23 +1350,25 @@ logConnect(playerid)
 	new ip[16];
 	GetPlayerIp(playerid, ip, 16);
  	new logData[100];
-	format(logData, 100, "%s %s connected with IP: %s \r\n\n", getDateAndTime(), getName(playerid), ip);
+	format(logData, 100, "%s %s connected with IP: %s \r\n\n", getDateAndTime(), name, ip);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logDisconnect(playerid, reason)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Disconnect%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Disconnect%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1222,23 +1398,25 @@ logDisconnect(playerid, reason)
 		}
 	}
 	new logData[100];
-	format(logData, 100, "%s %s (IP:%s) disconnected, reason: %s \r\n\n", getDateAndTime(), getName(playerid), ip, reasonString);
+	format(logData, 100, "%s %s (IP:%s) disconnected, reason: %s \r\n\n", getDateAndTime(), name, ip, reasonString);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logCommand(playerid, cmdtext[])
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Command%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Command%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1250,23 +1428,25 @@ logCommand(playerid, cmdtext[])
 		}
 	}
 	new logData[200];
-	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), getName(playerid), cmdtext);
+	format(logData, 200, "%s %s: %s \r\n\n", getDateAndTime(), name, cmdtext);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logDeath(playerid, killerid, reason, victimcase)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Death%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Death%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1282,16 +1462,16 @@ logDeath(playerid, killerid, reason, victimcase)
 	{
 		if(victimcase == VICTIM)
 		{
-			format(logData, 200, "%s %s was killed by: %s, weapon: %s \r\n\n", getDateAndTime(), getName(playerid), getName(killerid), reason);
+			format(logData, 200, "%s %s was killed by: %s, weapon: %s \r\n\n", getDateAndTime(), name, getName(killerid), reason);
 		}
 		else if(victimcase == CULPRIT)
 		{
-			format(logData, 200, "%s %s has killed %s, weapon: %s \r\n\n", getDateAndTime(), getName(killerid), getName(playerid), reason);
+			format(logData, 200, "%s %s has killed %s, weapon: %s \r\n\n", getDateAndTime(), getName(killerid), name, reason);
 		}
 	}
 	else
 	{
-		format(logData, 200, "%s %s died, reason: %s \r\n\n", getDateAndTime(), getName(playerid), reason);
+		format(logData, 200, "%s %s died, reason: %s \r\n\n", getDateAndTime(), name, reason);
 	}
 	writeDataIfPossible(path, logData);
 	return 1;
@@ -1299,16 +1479,18 @@ logDeath(playerid, killerid, reason, victimcase)
 
 logShooting(playerid, damagedid, Float:amount, weaponid, victimcase)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Shooting%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Shooting%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1322,11 +1504,11 @@ logShooting(playerid, damagedid, Float:amount, weaponid, victimcase)
 	new logData[200];
 	if(victimcase == CULPRIT)
 	{
-		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), getName(playerid), getName(damagedid), Float:amount, weaponid);
+		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), name, getName(damagedid), Float:amount, weaponid);
 	}
 	else if(victimcase == VICTIM)
 	{
-		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), getName(damagedid), getName(playerid), Float:amount, weaponid);
+		format(logData, 200, "%s %s ---> %s %f %i \r\n\n", getDateAndTime(), getName(damagedid), name, Float:amount, weaponid);
 	}
 	writeDataIfPossible(path, logData);
 	return 1;
@@ -1334,16 +1516,18 @@ logShooting(playerid, damagedid, Float:amount, weaponid, victimcase)
 
 logInteriorChange(playerid, int1, int2)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/Interior%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Interior%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1355,23 +1539,25 @@ logInteriorChange(playerid, int1, int2)
 		}
 	}
 	new logData[200];
-	format(logData, 200, "%s %s's new interior: %i, old interior: %i \r\n\n", getDateAndTime(), getName(playerid), int1, int2);
+	format(logData, 200, "%s %s's new interior: %i, old interior: %i \r\n\n", getDateAndTime(), name, int1, int2);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logExitingVehicle(playerid, seat, vehicleid, modelid)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/CarExit%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/CarExit%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1389,29 +1575,36 @@ logExitingVehicle(playerid, seat, vehicleid, modelid)
 		 {
 		 	seatName = "Driver";
 		 }
+		 case 128:
+		 {
+		    //128 is an invalid seat
+		    return 0;
+		 }
 		 default:
 		 {
 		 	seatName = "Passenger";
 		 }
 	}
 	new logData[200];
-	format(logData, 200, "%s %s left a vehicle, Seat: %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
+	format(logData, 200, "%s %s left a vehicle, Seat: %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), name, seatName, vehicleid, modelid);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logRconLogin(playerid, bool:success, ip[], password[])
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/RconLogin%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/RconLogin%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1425,11 +1618,11 @@ logRconLogin(playerid, bool:success, ip[], password[])
 	new logData[200];
 	if(!success)
 	{
-		format(logData, 200, "%s %s (IP:%s) has failed to login as RCON, password: %s\r\n\n", getDateAndTime(), getName(playerid), ip, password);
+		format(logData, 200, "%s %s (IP:%s) has failed to login as RCON, password: %s\r\n\n", getDateAndTime(), name, ip, password);
 	}
 	else
 	{
-		format(logData, 200, "%s %s (IP:%s) has logged in as RCON \r\n\n", getDateAndTime(), getName(playerid), ip);
+		format(logData, 200, "%s %s (IP:%s) has logged in as RCON \r\n\n", getDateAndTime(), name, ip);
 	}
 	writeDataIfPossible(path, logData);
 	return 1;
@@ -1457,16 +1650,18 @@ logRconCommand(cmd[])
 
 logEnteringVehicle(playerid, seat, vehicleid, modelid)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:
 		{
-			format(path, 80, "Logs/%s/CarEnter%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/CarEnter%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1484,28 +1679,35 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 		 {
 		 	seatName = "Driver";
 		 }
+		 case 128:
+		 {
+		    //128 is an invalid seat
+		    return 0;
+		 }
 		 default:
 		 {
 		 	seatName = "Passenger";
 		 }
 	}
 	new logData[200];
-	format(logData, 200, "%s %s entered a vehicle, Seat: %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), getName(playerid), seatName, vehicleid, modelid);
+	format(logData, 200, "%s %s entered a vehicle, Seat: %s, VehicleID: %i, ModelID: %i \r\n\n", getDateAndTime(), name, seatName, vehicleid, modelid);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
 
 logPlayerLocation(playerid)
 {
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
 	new path[80];
 	switch(saveMode)
 	{
 		case 1:		{
-			format(path, 80, "Logs/%s/Position%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s/Position%s.log", name, getTimeInfo());
 		}
 		case 2:
 		{
-			format(path, 80, "Logs/%s%s.log", getName(playerid), getTimeInfo());
+			format(path, 80, "Logs/%s%s.log", name, getTimeInfo());
 		}
 		case 3:
 		{
@@ -1519,7 +1721,7 @@ logPlayerLocation(playerid)
 	new Float:X, Float:Y, Float:Z;
 	GetPlayerPos(playerid, X, Y, Z);
 	new logData[150];
-	format(logData, 150, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n", getDateAndTime(), getName(playerid), X, Y, Z);
+	format(logData, 150, "%s %s's Location X: %f | Y: %f | Z: %f\r\n\n", getDateAndTime(), name, X, Y, Z);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
@@ -1685,10 +1887,6 @@ updateAndShowLogConfigDialog(playerid)
 	}
 	switch(saveTime)
 	{
-		case 0:
-		{
-			logPartString[13] = "Save logfiles per (Function disabled)";
-		}
 		case 1:
 		{
 			logPartString[13] = "Save logfiles per hour";
@@ -1705,9 +1903,13 @@ updateAndShowLogConfigDialog(playerid)
 		{
 			logPartString[13] = "Save logfiles per year";
 		}
+		default:
+		{
+			logPartString[13] = "Save logfiles per (Function disabled)";
+		}
 	}
 	new string[370];
-	format(string,370, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\nPositionLogInterval\n \nDisable All\nEnable All",logPartString[0],logPartString[1],logPartString[2],logPartString[3],logPartString[4],logPartString[5],logPartString[6],logPartString[7],logPartString[8],logPartString[9],logPartString[10],logPartString[11],logPartString[12],logPartString[13]);
+	format(string, 370, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\nPositionLogInterval\n \nDisable All\nEnable All", logPartString[0], logPartString[1], logPartString[2], logPartString[3], logPartString[4], logPartString[5], logPartString[6], logPartString[7], logPartString[8], logPartString[9], logPartString[10], logPartString[11], logPartString[12], logPartString[13]);
 	ShowPlayerDialog(playerid, LOGCONFIG, DIALOG_STYLE_LIST, "Log Config", string, "Confirm", "Back");
 	return 1;
 }
@@ -1777,9 +1979,9 @@ getLogSizes(playerid)
 	format(logPartSizeString[9], 60, "CarEnterLog(Size:%i)", getFileSize("Logs/CarEnter.log"));
 	format(logPartSizeString[10], 60, "CarExitLog(Size:%i)", getFileSize("Logs/CarExit.log"));
 	format(logPartSizeString[11], 60, "RconCommandLog(Size:%i)", getFileSize("Logs/RconCommand.log"));
-	new logSizes[1200];
-	format(logSizes, 1200, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", logPartSizeString[0], logPartSizeString[1], logPartSizeString[2], logPartSizeString[3], logPartSizeString[4], logPartSizeString[5], logPartSizeString[6], logPartSizeString[7], logPartSizeString[8], logPartSizeString[9], logPartSizeString[10], logPartSizeString[11]);
-	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE, DIALOG_STYLE_LIST, "Log clean",logSizes, "Confirm", "Back");
+	new logSizes[900];
+	format(logSizes, 900, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", logPartSizeString[0], logPartSizeString[1], logPartSizeString[2], logPartSizeString[3], logPartSizeString[4], logPartSizeString[5], logPartSizeString[6], logPartSizeString[7], logPartSizeString[8], logPartSizeString[9], logPartSizeString[10], logPartSizeString[11]);
+	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE, DIALOG_STYLE_LIST, "Log clean", logSizes, "Confirm", "Back");
 	return 1;
 }
 
@@ -1863,17 +2065,10 @@ public LogLoc(playerid)
 	return 1;
 }
 
-forward LogCar(playerid);
-public LogCar(playerid)
-{
-	logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), GetPlayerVehicleID(playerid), GetVehicleModel(GetPlayerVehicleID(playerid)));
-	return 1;
-}
-
 forward versionCheckResponse(index, response_code, data[]);
 public versionCheckResponse(index, response_code, data[])
 {
-	new VERSION[9] = "1.3.3.2"; //I suggest not to touch this ;D
+	new VERSION[9] = "1.3.3.3"; //I suggest not to touch this ;D
 	if(strcmp(data, VERSION, true))
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
@@ -1996,11 +2191,9 @@ CMD:logsavemode(playerid, params[])
 		}
 		if((newSaveMode >= 1) && (newSaveMode <= 4))
 		{
-		    new message[46];
 		    saveMode = newSaveMode;
 		    dini_IntSet(CONFIG_FILE, SAVE_MODE, newSaveMode);
-		    format(message, 46, "[Logging System] Savemode has been set to %i.", newSaveMode);
-		    SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, message);
+		    SendClientMessageFormatted(playerid, DEFAULT_MESSAGE_COLOR, "[Logging System] Savemode has been set to %i.", newSaveMode);
 		}
 		else
 		{
