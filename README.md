@@ -26,6 +26,9 @@ This Filterscript is capable of logging:
 1. Download the package
 2. insert sscanf and the Directory plugin into your server.cfg `plugin sscanf Directory`
 3. insert Log into your server.cfg `filterscripts Log`
+4. Start your server
+
+If any errors occur, just ask me for help.
 
 ## Configuration:
 
@@ -38,7 +41,7 @@ If you find any bugs, have ideas for improvment or new features, psot them here:
 
 ## Problems:
 
-Well, I kind of am afraid that my filterscript causes performance / memory problems since i a lot of files are being opened and closed very often, so i'd be pleased if the people who use this tell me if it causes problems, if it does i can create an extra version for u that has less possibilites but wont lower the performance (only the memory ^^) like hell.
+Might cause performance problems on bigger servers depending on the settings that you chose.
 
 ## Future Plans:
 
