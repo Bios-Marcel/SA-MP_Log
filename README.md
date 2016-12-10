@@ -26,6 +26,9 @@ This Filterscript is capable of logging:
 1. Download the package
 2. insert sscanf and the Directory plugin into your server.cfg `plugin sscanf Directory`
 3. insert Log into your server.cfg `filterscripts Log`
+4. Start your server
+
+If any errors occur, just ask me for help.
 
 ## Configuration:
 
