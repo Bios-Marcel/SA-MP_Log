@@ -37,7 +37,7 @@ Single Commands for all settings are in developement (I am a bit lazy that's why
 
 ## Bugs , Requests and Ideas:
 
-If you find any bugs, have ideas for improvment or new features, psot them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
+If you find any bugs, have ideas for improvment or new features, post them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
 
 ## Problems:
 
