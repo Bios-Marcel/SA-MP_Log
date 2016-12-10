@@ -46,6 +46,6 @@ Well, I kind of am afraid that my filterscript causes performance / memory probl
 - Improve Performance (Which might be hard when using the file system to log)
 
 ## Version:
-1.3.3.1 (08.12.2016)
+1.3.3.2 (10.12.2016)
 
 greetings Marcel
