@@ -49,6 +49,6 @@ Might cause performance problems on bigger servers depending on the settings tha
 - Improve Performance (Which might be hard when using the file system to log)
 
 ## Version:
-1.3.3.2 (10.12.2016)
+1.3.3.3 (10.12.2016)
 
 greetings Marcel
