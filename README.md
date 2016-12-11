@@ -18,7 +18,7 @@ This Filterscript is capable of logging:
 - Interior Change(Oldinterior, NewInterior)
 - Connect/Disconnect(name,Ip,reason);
 - Rcon Login(Wrong/successful)
-- PlayerPositionLog(logs each players position every 3 seconds by default)
+- PlayerPosition(logs each players position every 3 seconds by default)
 
 ## Installation:
 
