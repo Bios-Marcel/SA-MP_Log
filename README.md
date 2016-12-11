@@ -42,6 +42,7 @@ You
 - found Bugs
 - have ideas for improvment
 - want new features
+
 Post them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
 
 ## Problems:
