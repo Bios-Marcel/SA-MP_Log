@@ -17,6 +17,7 @@
 #define COMMAND_LOGGING "CommandLogging"
 #define SHOOTING_LOGGING "ShootingLogging"
 #define DEATH_LOGGING "DeathLogging"
+#define INCOMING_CONNECTION_LOGGING "IncomingConnectionLogging"
 #define CONNECT_LOGGING "ConnectLogging"
 #define DISCONNECT_LOGGING "DisconnectLogging"
 #define INTERIOR_LOGGING "InteriorLogging"
@@ -28,18 +29,19 @@
 #define POSITION_LOG_INTERVAL "PositionLogInterval"
 
 //Default settings
-#define POSITION_LOGGING_DEFAULT 1
-#define CHAT_LOGGING_DEFAULT 1
-#define COMMAND_LOGGING_DEFAULT 1
-#define SHOOTING_LOGGING_DEFAULT 1
-#define DEATH_LOGGING_DEFAULT 1
-#define CONNECT_LOGGING_DEFAULT 1
-#define DISCONNECT_LOGGING_DEFAULT 1
-#define INTERIOR_LOGGING_DEFAULT 1
-#define RCON_LOGIN_LOGGING_DEFAULT 1
-#define CAR_ENTER_LOGGING_DEFAULT 1
-#define CAR_EXIT_LOGGING_DEFAULT 1
-#define SAVE_MODE_DEFAULT 1
+#define POSITION_LOGGING_DEFAULT true
+#define CHAT_LOGGING_DEFAULT true
+#define COMMAND_LOGGING_DEFAULT true
+#define SHOOTING_LOGGING_DEFAULT true
+#define DEATH_LOGGING_DEFAULT true
+#define INCOMING_CONNECTION_LOGGING_DEFAULT false
+#define CONNECT_LOGGING_DEFAULT true
+#define DISCONNECT_LOGGING_DEFAULT true
+#define INTERIOR_LOGGING_DEFAULT true
+#define RCON_LOGIN_LOGGING_DEFAULT true
+#define CAR_ENTER_LOGGING_DEFAULT true
+#define CAR_EXIT_LOGGING_DEFAULT true
+#define SAVE_MODE_DEFAULT true
 #define LOG_FILES_PER_X_DEFAULT "no"
 #define POSITION_LOG_INTERVAL_DEFAULT 3000
 
@@ -59,6 +61,7 @@
 #define S4_CLEAN_RCONLOGIN 14
 #define S4_CLEAN_CARENTER 15
 #define S4_CLEAN_CAREXIT 16
+#define S4_CLEAN_INCOMINGCONNECTION 17
 #define POSLOGINT 18
 #define SAVEMODE1_CHOOSEPLAYER 19
 #define SAVEMODE1_CHOOSELOG 20
@@ -77,17 +80,18 @@
 
 //PUBLIC VARIABLES
 new saveTime = 0;
-new positionLogging;
-new chatLogging;
-new commandLogging;
-new shootingLogging;
-new deathLogging;
-new connectLogging;
-new disconnectLogging;
-new interiorLogging;
-new rconLoginLogging;
-new carEnterLogging;
-new carExitLogging;
+new bool:positionLogging;
+new bool:chatLogging;
+new bool:commandLogging;
+new bool:shootingLogging;
+new bool:deathLogging;
+new bool:incomingConnectionLogging;
+new bool:connectLogging;
+new bool:disconnectLogging;
+new bool:interiorLogging;
+new bool:rconLoginLogging;
+new bool:carEnterLogging;
+new bool:carExitLogging;
 new saveMode;
 new playerLocationLogTimer[MAX_PLAYERS];
 
@@ -110,51 +114,18 @@ public OnFilterScriptInit()
 	//Creates the directory if it not already exists, doesn't delete anything
 	DirCreate("Logs");
 
-	//Before the config was called "config.cfg" it was called "LogConfig.cfg" , since i dont want to ruin your settigns i am checking for the old file to transfer it
-	if(fexist("Logs/LogConfig.cfg"))
-	{
-		if(!fexist(CONFIG_FILE))
-		{
-			dini_Create(CONFIG_FILE);
-			dini_IntSet(CONFIG_FILE, POSITION_LOGGING, dini_Int("Logs/LogConfig.cfg", POSITION_LOGGING));
-			dini_IntSet(CONFIG_FILE, CHAT_LOGGING, dini_Int("Logs/LogConfig.cfg", CHAT_LOGGING));
-			dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, dini_Int("Logs/LogConfig.cfg", COMMAND_LOGGING));
-			dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, dini_Int("Logs/LogConfig.cfg", SHOOTING_LOGGING));
-			dini_IntSet(CONFIG_FILE, DEATH_LOGGING, dini_Int("Logs/LogConfig.cfg", DEATH_LOGGING));
-			dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, dini_Int("Logs/LogConfig.cfg", CONNECT_LOGGING));
-			dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, dini_Int("Logs/LogConfig.cfg", DISCONNECT_LOGGING));
-			dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, dini_Int("Logs/LogConfig.cfg", INTERIOR_LOGGING));
-			dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, dini_Int("Logs/LogConfig.cfg", RCON_LOGIN_LOGGING));
-			dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, dini_Int("Logs/LogConfig.cfg", CAR_ENTER_LOGGING));
-			dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, dini_Int("Logs/LogConfig.cfg", CAR_EXIT_LOGGING));
-			dini_IntSet(CONFIG_FILE, SAVE_MODE, dini_Int("Logs/LogConfig.cfg", SAVE_MODE));
-			dini_Set(CONFIG_FILE, LOG_FILES_PER_X, "no");
-			dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, dini_Int("Logs/LogConfig.cfg", POSITION_LOG_INTERVAL));
-		}
-	}
-	if(dini_Create(CONFIG_FILE))
-	{
-		dini_IntSet(CONFIG_FILE, POSITION_LOGGING, POSITION_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, CHAT_LOGGING, CHAT_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, COMMAND_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, SHOOTING_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, DEATH_LOGGING, DEATH_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, CONNECT_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, DISCONNECT_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, INTERIOR_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, RCON_LOGIN_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, CAR_ENTER_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, CAR_EXIT_LOGGING_DEFAULT);
-		dini_IntSet(CONFIG_FILE, SAVE_MODE, SAVE_MODE_DEFAULT);
-		dini_Set(CONFIG_FILE, LOG_FILES_PER_X, LOG_FILES_PER_X_DEFAULT);
-		dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, POSITION_LOG_INTERVAL_DEFAULT);
-	}
+	applyOldConfigIfExistant();
+	
+	createConfigIfNotExistant();
+	
 	loadConfig();
+	
 	if((saveMode > 4) || (saveMode < 1))
 	{
 		dini_IntSet(CONFIG_FILE, SAVE_MODE, 1);
 		print("[Logging System]The savemode was automatically set to 1 since it wasn't in range of 1 and 4.");
 	}
+	
 	return 1;
 }
 
@@ -240,6 +211,27 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 
 /*
 Description:
+This callback is called when an IP address attempts a connection to the server. To block incoming connections, use BlockIpAddress.
+
+Parameters:
+playerid		The ID of the player attempting to connect
+ip_address[]	The IP address of the player attempting to connect
+port			The port of the attempted connection
+
+Return Values:
+This callback does not handle returns.
+*/
+public OnIncomingConnection(playerid, ip_address[], port)
+{
+	if(incomingConnectionLogging)
+	{
+	    logIncomingConnection(playerid, ip_address, port);
+	}
+    return 1;
+}
+
+/*
+Description:
 This callback is called when a player connects to the server.
 
 Parameters:
@@ -252,18 +244,6 @@ Return Values:
 */
 public OnPlayerConnect(playerid)
 {
-	if(saveMode == 1)
-	{
-		new path[40];
-		format(path, 40, "Logs/%s", getName(playerid));
-		DirCreate(path);
-	}
-	else if(saveMode == 2)
-	{
-		new path[44];
-		format(path, 44, "Logs/%s.log", getName(playerid));
-		dini_Create(path);
-	}
 	if(connectLogging)
 	{
 		logConnect(playerid);
@@ -724,6 +704,19 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				getLogSizes(playerid);
 			}
 		}
+		case S4_CLEAN_INCOMINGCONNECTION:
+		{
+			if(response)
+			{
+				eraseFile("Logs/IncomingConnection.log");
+				GameTextForPlayer(playerid, "IncomingConnection log cleaned successful.", 3000, 5);
+				ShowPlayerDialog(playerid, LOGMENU, DIALOG_STYLE_LIST, "Logmenu", "Configure logs\nClean logs", "Confirm", "Back");
+			}
+			else
+			{
+				getLogSizes(playerid);
+			}
+		}
 		case SAVEMODE4_CHOOSE:
 		{
 			if(response)
@@ -744,67 +737,67 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 				    case 0:
 					{
 						positionLogging = !positionLogging;
-						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, !positionLogging);
+						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, positionLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 1:
 					{
 						chatLogging = !chatLogging;
-						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, !chatLogging);
+						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, chatLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 2:
 					{
 						commandLogging = !commandLogging;
-						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, !commandLogging);
+						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, commandLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 3:
 					{
 						shootingLogging = !shootingLogging;
-						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, !shootingLogging);
+						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, shootingLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 4:
 					{
 						deathLogging = !deathLogging;
-						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, !deathLogging);
+						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, deathLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 5:
 					{
 						connectLogging = !connectLogging;
-						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, !connectLogging);
+						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, connectLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 6:
 					{
 						disconnectLogging = !disconnectLogging;
-						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, !disconnectLogging);
+						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, disconnectLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 7:
 					{
 						interiorLogging = !interiorLogging;
-						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, !interiorLogging);
+						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, interiorLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 8:
 					{
 						rconLoginLogging = !rconLoginLogging;
-						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, !rconLoginLogging);
+						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, rconLoginLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 9:
 					{
 						carEnterLogging = !carEnterLogging;
-						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, !carEnterLogging);
+						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, carEnterLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 10:
 					{
 						carExitLogging = !carExitLogging;
-						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, !carExitLogging);
+						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, carExitLogging);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 11:
@@ -837,54 +830,54 @@ public OnDialogResponse(playerid, dialogid, response, listitem, inputtext[])
 					}*/
 					case 15:
 					{
-						positionLogging = 0;
-						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, 0);
-						chatLogging = 0;
-						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, 0);
-						connectLogging = 0;
-						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, 0);
-						disconnectLogging = 0;
-						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, 0);
-						shootingLogging = 0;
-						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, 0);
-						deathLogging = 0;
-						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, 0);
-						rconLoginLogging = 0;
-						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, 0);
-						interiorLogging = 0;
-						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, 0);
-						carEnterLogging = 0;
-						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, 0);
-						carExitLogging = 0;
-						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, 0);
-						commandLogging = 0;
-						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, 0);
+						positionLogging = false;
+						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, false);
+						chatLogging = false;
+						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, false);
+						connectLogging = false;
+						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, false);
+						disconnectLogging = false;
+						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, false);
+						shootingLogging = false;
+						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, false);
+						deathLogging = false;
+						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, false);
+						rconLoginLogging = false;
+						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, false);
+						interiorLogging = false;
+						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, false);
+						carEnterLogging = false;
+						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, false);
+						carExitLogging = false;
+						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, false);
+						commandLogging = false;
+						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, false);
 						updateAndShowLogConfigDialog(playerid);
 					}
 					case 16:
 					{
-						positionLogging = 1;
-						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, 1);
-						chatLogging = 1;
-						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, 1);
-						connectLogging = 1;
-						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, 1);
-						disconnectLogging = 1;
-						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, 1);
-						shootingLogging = 1;
-						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, 1);
-						deathLogging = 1;
-						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, 1);
-						rconLoginLogging = 1;
-						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, 1);
-						interiorLogging = 1;
-						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, 1);
-						carEnterLogging = 1;
-						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, 1);
-						carExitLogging = 1;
-						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, 1);
-						commandLogging = 1;
-						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, 1);
+						positionLogging = true;
+						dini_IntSet(CONFIG_FILE, POSITION_LOGGING, true);
+						chatLogging = true;
+						dini_IntSet(CONFIG_FILE, CHAT_LOGGING, true);
+						connectLogging = true;
+						dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, true);
+						disconnectLogging = true;
+						dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, true);
+						shootingLogging = true;
+						dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, true);
+						deathLogging = true;
+						dini_IntSet(CONFIG_FILE, DEATH_LOGGING, true);
+						rconLoginLogging = true;
+						dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, true);
+						interiorLogging = true;
+						dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, true);
+						carEnterLogging = true;
+						dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, true);
+						carExitLogging = true;
+						dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, true);
+						commandLogging = true;
+						dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, true);
 						updateAndShowLogConfigDialog(playerid);
 					}
 				}
@@ -973,6 +966,55 @@ SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
     }
 }
 
+createConfigIfNotExistant()
+{
+	if(dini_Create(CONFIG_FILE))
+	{
+		dini_IntSet(CONFIG_FILE, POSITION_LOGGING, POSITION_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, CHAT_LOGGING, CHAT_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, COMMAND_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, SHOOTING_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, DEATH_LOGGING, DEATH_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, INCOMING_CONNECTION_LOGGING, INCOMING_CONNECTION_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, CONNECT_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, DISCONNECT_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, INTERIOR_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, RCON_LOGIN_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, CAR_ENTER_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, CAR_EXIT_LOGGING_DEFAULT);
+		dini_IntSet(CONFIG_FILE, SAVE_MODE, SAVE_MODE_DEFAULT);
+		dini_Set(CONFIG_FILE, LOG_FILES_PER_X, LOG_FILES_PER_X_DEFAULT);
+		dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, POSITION_LOG_INTERVAL_DEFAULT);
+	}
+}
+
+applyOldConfigIfExistant()
+{
+	//Before the config was called "config.cfg" it was called "LogConfig.cfg" , since i dont want to ruin your settigns i am checking for the old file to transfer it
+	if(fexist("Logs/LogConfig.cfg"))
+	{
+		if(!fexist(CONFIG_FILE))
+		{
+			dini_Create(CONFIG_FILE);
+			dini_IntSet(CONFIG_FILE, POSITION_LOGGING, dini_Int("Logs/LogConfig.cfg", POSITION_LOGGING));
+			dini_IntSet(CONFIG_FILE, CHAT_LOGGING, dini_Int("Logs/LogConfig.cfg", CHAT_LOGGING));
+			dini_IntSet(CONFIG_FILE, COMMAND_LOGGING, dini_Int("Logs/LogConfig.cfg", COMMAND_LOGGING));
+			dini_IntSet(CONFIG_FILE, SHOOTING_LOGGING, dini_Int("Logs/LogConfig.cfg", SHOOTING_LOGGING));
+			dini_IntSet(CONFIG_FILE, DEATH_LOGGING, dini_Int("Logs/LogConfig.cfg", DEATH_LOGGING));
+			dini_IntSet(CONFIG_FILE, INCOMING_CONNECTION_LOGGING, dini_Int("Logs/LogConfig.cfg", INCOMING_CONNECTION_LOGGING));
+			dini_IntSet(CONFIG_FILE, CONNECT_LOGGING, dini_Int("Logs/LogConfig.cfg", CONNECT_LOGGING));
+			dini_IntSet(CONFIG_FILE, DISCONNECT_LOGGING, dini_Int("Logs/LogConfig.cfg", DISCONNECT_LOGGING));
+			dini_IntSet(CONFIG_FILE, INTERIOR_LOGGING, dini_Int("Logs/LogConfig.cfg", INTERIOR_LOGGING));
+			dini_IntSet(CONFIG_FILE, RCON_LOGIN_LOGGING, dini_Int("Logs/LogConfig.cfg", RCON_LOGIN_LOGGING));
+			dini_IntSet(CONFIG_FILE, CAR_ENTER_LOGGING, dini_Int("Logs/LogConfig.cfg", CAR_ENTER_LOGGING));
+			dini_IntSet(CONFIG_FILE, CAR_EXIT_LOGGING, dini_Int("Logs/LogConfig.cfg", CAR_EXIT_LOGGING));
+			dini_IntSet(CONFIG_FILE, SAVE_MODE, dini_Int("Logs/LogConfig.cfg", SAVE_MODE));
+			dini_Set(CONFIG_FILE, LOG_FILES_PER_X, "no");
+			dini_IntSet(CONFIG_FILE, POSITION_LOG_INTERVAL, dini_Int("Logs/LogConfig.cfg", POSITION_LOG_INTERVAL));
+		}
+	}
+}
+
 /**
  * Enabled / disables the given log
  *
@@ -980,7 +1022,7 @@ SendClientMessageFormatted(playerid, color, fstring[], {Float, _}:...)
  * logId 	the log that is to deactivate/activate
  * status 	status on or off (1 or 0)
 **/
-setLogStatus(playerid, logId, status)
+setLogStatus(playerid, logId, bool:status)
 {
 	new message[9];
 	if(status)
@@ -993,6 +1035,12 @@ setLogStatus(playerid, logId, status)
 	}
 	switch(logId)
 	{
+		case 1:
+		{
+			incomingConnectionLogging = status;
+			dini_IntSet(CONFIG_FILE, INCOMING_CONNECTION_LOGGING, status);
+			SendClientMessageFormatted(playerid, DEFAULT_MESSAGE_COLOR, "[Logging System] Incoming connection logging %s.", message);
+		}
 		case 2:
 		{
 			chatLogging = status;
@@ -1089,22 +1137,32 @@ checkVersion()
 	return 1;
 }
 
+intToBool(intToConvert, &boolToSet)
+{
+	if(intToConvert >= 1)
+	{
+	    boolToSet = true;
+	}
+	boolToSet = false;
+}
+
 /**
  * Loads the settings from the file into the variables
 **/
 loadConfig()
 {
-	positionLogging = dini_Int(CONFIG_FILE, POSITION_LOGGING);
-	chatLogging = dini_Int(CONFIG_FILE, CHAT_LOGGING);
-	commandLogging = dini_Int(CONFIG_FILE, COMMAND_LOGGING);
-	shootingLogging = dini_Int(CONFIG_FILE, SHOOTING_LOGGING);
-	deathLogging = dini_Int(CONFIG_FILE, DEATH_LOGGING);
-	connectLogging = dini_Int(CONFIG_FILE, CONNECT_LOGGING);
-	disconnectLogging = dini_Int(CONFIG_FILE, DISCONNECT_LOGGING);
-	interiorLogging = dini_Int(CONFIG_FILE, INTERIOR_LOGGING);
-	rconLoginLogging = dini_Int(CONFIG_FILE, RCON_LOGIN_LOGGING);
-	carEnterLogging = dini_Int(CONFIG_FILE, CAR_ENTER_LOGGING);
-	carExitLogging = dini_Int(CONFIG_FILE, CAR_EXIT_LOGGING);
+	intToBool(dini_Int(CONFIG_FILE, POSITION_LOGGING), positionLogging);
+	intToBool(dini_Int(CONFIG_FILE, CHAT_LOGGING), chatLogging);
+	intToBool(dini_Int(CONFIG_FILE, COMMAND_LOGGING), commandLogging);
+	intToBool(dini_Int(CONFIG_FILE, SHOOTING_LOGGING), shootingLogging);
+	intToBool(dini_Int(CONFIG_FILE, DEATH_LOGGING), deathLogging);
+	intToBool(dini_Int(CONFIG_FILE, INCOMING_CONNECTION_LOGGING), incomingConnectionLogging);
+	intToBool(dini_Int(CONFIG_FILE, CONNECT_LOGGING), connectLogging);
+	intToBool(dini_Int(CONFIG_FILE, DISCONNECT_LOGGING), disconnectLogging);
+	intToBool(dini_Int(CONFIG_FILE, INTERIOR_LOGGING), interiorLogging);
+	intToBool(dini_Int(CONFIG_FILE, RCON_LOGIN_LOGGING), rconLoginLogging);
+	intToBool(dini_Int(CONFIG_FILE, CAR_ENTER_LOGGING), carEnterLogging);
+	intToBool(dini_Int(CONFIG_FILE, CAR_EXIT_LOGGING), carExitLogging);
 	saveMode = dini_Int(CONFIG_FILE, SAVE_MODE);
 	saveTime = dini_Int(CONFIG_FILE, LOG_FILES_PER_X);
 	return 1;
@@ -1261,6 +1319,18 @@ logChat(playerid, text[])
 	}
 	new logData[190];
 	format(logData, 190, "%s %s: %s \r\n\n", getDateAndTime(), name, text);
+	writeDataIfPossible(path, logData);
+	return 1;
+}
+
+logIncomingConnection(playerid, ipAdress[], port)
+{
+	new name[MAX_PLAYER_NAME];
+	name = getName(playerid);
+	new path[80];
+	format(path, 80, "Logs/IncomingConnections%s.log", getTimeInfo());
+ 	new logData[100];
+	format(logData, 100, "%s Incoming connection, playerid: %d Name(might be empty): %s IP: %s Port: %d %s \r\n\n", getDateAndTime(), playerid, name, ipAdress, port);
 	writeDataIfPossible(path, logData);
 	return 1;
 }
@@ -1877,7 +1947,7 @@ getFileSize(filename[])
 
 getLogSizes(playerid)
 {
-	new logPartSizeString[11][60];
+	new logPartSizeString[12][60];
 	format(logPartSizeString[0], 60, "PositionLog(Size:%i)", getFileSize("Logs/Position.log"));
 	format(logPartSizeString[1], 60, "ChatLog(Size:%i)", getFileSize("Logs/Chat.log"));
 	format(logPartSizeString[2], 60, "CommandLog(Size:%i)", getFileSize("Logs/Command.log"));
@@ -1889,8 +1959,11 @@ getLogSizes(playerid)
 	format(logPartSizeString[8], 60, "RconLoginLog(Size:%i)", getFileSize("Logs/RconLogin.log"));
 	format(logPartSizeString[9], 60, "CarEnterLog(Size:%i)", getFileSize("Logs/CarEnter.log"));
 	format(logPartSizeString[10], 60, "CarExitLog(Size:%i)", getFileSize("Logs/CarExit.log"));
+	format(logPartSizeString[11], 60, "IncomingConnectionLog(Size:%i)", getFileSize("Logs/IncomingConnection.log"));
 	new logSizes[800];
-	format(logSizes, 800, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", logPartSizeString[0], logPartSizeString[1], logPartSizeString[2], logPartSizeString[3], logPartSizeString[4], logPartSizeString[5], logPartSizeString[6], logPartSizeString[7], logPartSizeString[8], logPartSizeString[9], logPartSizeString[10]);
+	format(logSizes, 800, "%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s", logPartSizeString[0], logPartSizeString[1],
+	logPartSizeString[2], logPartSizeString[3], logPartSizeString[4], logPartSizeString[5], logPartSizeString[6],
+	logPartSizeString[7], logPartSizeString[8], logPartSizeString[9], logPartSizeString[10], logPartSizeString[11]);
 	ShowPlayerDialog(playerid, SAVEMODE4_CHOOSE, DIALOG_STYLE_LIST, "Log clean", logSizes, "Confirm", "Back");
 	return 1;
 }
@@ -1955,8 +2028,29 @@ cleanLog(playerid, logid)
 			format(logcl, 125, "Are you sure that you want to clean the CarExit Log file(Size:%i)", getFileSize("Logs/CarExit.log"));
 			ShowPlayerDialog(playerid, S4_CLEAN_CAREXIT, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
 		}
+		case 11:
+		{
+			format(logcl, 125, "Are you sure that you want to clean the IncomingConnection Log file(Size:%i)", getFileSize("Logs/IncomingConnection.log"));
+			ShowPlayerDialog(playerid, S4_CLEAN_INCOMINGCONNECTION, DIALOG_STYLE_LIST, "Log clean", logcl, "Confirm", "Back");
+		}
 	}
 	return 1;
+}
+
+showLogIds(playerid)
+{
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "1 = IncomingConnectionLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "2 = ChatLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "3 = CommandLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "4 = ShootingLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "5 = PositionLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "6 = DeathLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "7 = ConnectLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "8 = DisconnectLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "9 = RconLoginLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "10 = InteriorLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "11 = CarEnterLogging");
+	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "12 = CarExitLogging");
 }
 
 //PUBLICS (non-default)
@@ -1973,8 +2067,8 @@ public LogLoc(playerid)
 forward versionCheckResponse(index, response_code, data[]);
 public versionCheckResponse(index, response_code, data[])
 {
-	new VERSION[9] = "1.3.3.4"; //I suggest not to touch this ;D
-	if(strcmp(data, VERSION, true))
+	new VERSION = 140; //I suggest not to touch this ;D
+	if(strval(data) > VERSION)
 	{
 		print("[Logging System] The Logging filterscript needs an update.");
 		printf("[Logging System] Latest Version: %s", data);
@@ -2008,20 +2102,10 @@ CMD:logenable(playerid, params[])
 		if(sscanf(params, "i", log))
 		{
 			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "[Logging System] Usage: /logenable [log]");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "2 = ChatLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "3 = CommandLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "4 = ShootingLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "5 = PositionLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "6 = DeathLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "7 = ConnectLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "8 = DisconnectLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "9 = RconLoginLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "10 = InteriorLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "11 = CarEnterLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "12 = CarExitLogging");
+			showLogIds(playerid);
 			return 1;
 		}
-		setLogStatus(playerid, log , 1);
+		setLogStatus(playerid, log , true);
 	}
 	return 1;
 }
@@ -2034,20 +2118,10 @@ CMD:logdisable(playerid, params[])
 		if(sscanf(params, "i", log))
 		{
 			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "[Logging System] Usage: /logdisable [log]");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "2 = ChatLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "3 = CommandLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "4 = ShootingLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "5 = PositionLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "6 = DeathLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "7 = ConnectLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "8 = DisconnectLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "9 = RconLoginLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "10 = InteriorLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "11 = CarEnterLogging");
-			SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "12 = CarExitLogging");
+			showLogIds(playerid);
 			return 1;
 		}
-		setLogStatus(playerid, log , 0);
+		setLogStatus(playerid, log , false);
 	}
 	return 1;
 }
