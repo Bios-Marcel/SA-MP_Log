@@ -29,7 +29,7 @@ This Filterscript is capable of logging:
 5. insert Log into your server.cfg `filterscripts Log`
 6. Start your server
 
-If any errors occur, just [ask for my help](marceloschr@googlemail.com).
+If any errors occur, just [ask for my help](mailto:marceloschr@googlemail.com).
 
 ## Configuration:
 
