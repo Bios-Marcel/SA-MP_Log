@@ -14,12 +14,11 @@ This Filterscript is capable of logging:
 - Chat
 - Commands
 - Enter/Exit Vehicle
-- PlayerTake(Deal)Damage
+- PlayerTake/DealDamage
 - Interior Change(Oldinterior, NewInterior)
-- Connect/Disconnect(name,Ip,reason)
-- Rcon Login(If the Player enters a wrong password the password would be logged)
-- RconCommand(Only Logs the Command)
-- PlayerPositionLog(Every 1.5 seconds it logs your position(It has a configurable interval, but the 1.5 second is the default))
+- Connect/Disconnect(name,Ip,reason);
+- Rcon Login(Wrong/successful)
+- PlayerPositionLog(logs each players position every 3 seconds by default)
 
 ## Installation:
 
