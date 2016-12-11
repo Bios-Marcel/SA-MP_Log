@@ -23,11 +23,13 @@ This Filterscript is capable of logging:
 ## Installation:
 
 1. Download the package
-2. insert sscanf and the Directory plugin into your server.cfg `plugin sscanf Directory`
-3. insert Log into your server.cfg `filterscripts Log`
-4. Start your server
+2. Put sscanf and Directory into the plugins folder
+3. Put Log.amx into your filterscripts folder
+4. insert sscanf and the Directory plugin into your server.cfg `plugins sscanf Directory`
+5. insert Log into your server.cfg `filterscripts Log`
+6. Start your server
 
-If any errors occur, just ask me for help.
+If any errors occur, just [ask for my help](marceloschr@googlemail.com).
 
 ## Configuration:
 
@@ -36,14 +38,18 @@ Single Commands for all settings are in developement (I am a bit lazy that's why
 
 ## Bugs , Requests and Ideas:
 
-If you find any bugs, have ideas for improvment or new features, post them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
+You
+- found Bugs
+- have ideas for improvment
+- want new features
+Post them here: [GitHub Issues Page](https://github.com/Bios-Marcel/SA-MP_Log/issues).
 
 ## Problems:
 
-Might cause performance problems on bigger servers depending on the settings that you chose.
+This script might cause performance problems on bigger servers depending on the settings that you chose.
 
 ## Future Plans:
 
-- Better Documentation
+- Better documentation
 - Functionallity to read logs ingame
 - Control everything per commands
