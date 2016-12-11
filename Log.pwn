@@ -309,7 +309,6 @@ This callback does not handle returns.
 */
 public OnPlayerDeath(playerid, killerid, reason)
 {
-	KillTimer(playerLocationLogTimer[playerid]);
 	if(deathLogging)
 	{
 		if(killerid != INVALID_PLAYER_ID)
@@ -322,7 +321,6 @@ public OnPlayerDeath(playerid, killerid, reason)
 		    logDeath(playerid, DEFAULT_MESSAGE_COLOR, reason, 0);
 		}
 	}
-
 }
 
 /*
@@ -398,6 +396,11 @@ public OnPlayerStateChange(playerid, newstate, oldstate)
 	        new vehicleid = GetPlayerVehicleID(playerid);
 		    logEnteringVehicle(playerid, GetPlayerVehicleSeat(playerid), vehicleid, GetVehicleModel(vehicleid));
 	    }
+	}
+	//To prevent the player location from being locked when it is not possible or would give invalid information
+    if(newstate == PLAYER_STATE_WASTED || newstate == PLAYER_STATE_NONE || newstate == PLAYER_STATE_SPECTATING)
+	{
+	    KillTimer(playerLocationLogTimer[playerid]);
 	}
 }
 
