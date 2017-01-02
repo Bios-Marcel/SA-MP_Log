@@ -4,11 +4,15 @@
 
 //INCLUDES
 #include <a_samp>
-#include <Directory>
-#include <Dini>
 #include <a_http>
+
+#include <Dini>
 #include <zcmd>
+
+#include <Directory>
 #include <sscanf2>
+
+
 
 //DEFINES
 //Name in settingsfile
@@ -95,22 +99,20 @@ new bool:carExitLogging;
 new saveMode;
 new playerLocationLogTimer[MAX_PLAYERS];
 
+//Forwarding
+forward logPlayerLocation(playerid);
+forward versionCheckResponse(index, response_code, data[]);
+
 //PUBLICS (default)
 /*
 Description:
 This callback is called when a filterscript is initialized (loaded). It is only called inside the filterscript which is starting.
-
-Parameters:
-This callback has no parameters.
-
-Return Values:
-This callback does not handle returns.
 */
 public OnFilterScriptInit()
 {
 	print("[Logging System] Log Filterscript loaded.");
 	checkVersion();
-	
+
 	//Creates the directory if it not already exists, doesn't delete anything
 	DirCreate("Logs");
 
@@ -119,13 +121,13 @@ public OnFilterScriptInit()
 	createConfigIfNotExistant();
 	
 	loadConfig();
-	
+
 	if((saveMode > 4) || (saveMode < 1))
 	{
 		dini_IntSet(CONFIG_FILE, SAVE_MODE, 1);
 		print("[Logging System]The savemode was automatically set to 1 since it wasn't in range of 1 and 4.");
 	}
-	
+
 	return 1;
 }
 
@@ -134,8 +136,7 @@ Description:
 This callback is called when someone attempts to log in to RCON in-game; successful or not.
 
 Parameters:
-(ip[], password[], success)
-ip[]	The IP of the player that tried to log in to RCON.
+ip[]		The IP of the player that tried to log in to RCON.
 password[]	The password used to login with.
 success		0 if the password was incorrect or 1 if it was correct.
 
@@ -165,7 +166,6 @@ Description:
 This callback is called when a player spawns.(i.e. after caling SpawnPlayer function)
 
 Parameters:
-(playerid)
 playerid	The ID of the player that spawned.
 
 Return Values:
@@ -175,9 +175,9 @@ public OnPlayerSpawn(playerid)
 {
 	if(positionLogging)
 	{
-		//Killing the Timer to prevent any bugs
+  //Killing the Timer to prevent any bugs
 	    KillTimer(playerLocationLogTimer[playerid]);
-		playerLocationLogTimer[playerid] = SetTimerEx("LogLoc", dini_Int(CONFIG_FILE, POSITION_LOG_INTERVAL), true, "i", playerid);
+		playerLocationLogTimer[playerid] = SetTimerEx("logPlayerLocation", dini_Int(CONFIG_FILE, POSITION_LOG_INTERVAL), true, "i", playerid);
 	}
 	return 1;
 }
@@ -187,7 +187,6 @@ Description:
 This callback is called when a player takes damage.
 
 Parameters:
-(playerid, issuerid, Float:amount, weaponid, bodypart)
 playerid	The ID of the player that took damage.
 issuerid	The ID of the player that caused the damage. INVALID_PLAYER_ID if self-inflicted.
 amount		The amount of damage the player took (health and armour combined).
@@ -206,7 +205,6 @@ public OnPlayerTakeDamage(playerid, issuerid, Float:amount, weaponid, bodypart)
 		logShooting(playerid, issuerid, amount, weaponid, CULPRIT);
 		logShooting(issuerid, playerid, amount, weaponid, VICTIM);
 	}
-	return 1;
 }
 
 /*
@@ -235,7 +233,6 @@ Description:
 This callback is called when a player connects to the server.
 
 Parameters:
-(playerid)
 playerid	The ID of the player that connected.
 
 Return Values:
@@ -256,7 +253,6 @@ Description:
 This callback is called when a player disconnects from the server.
 
 Parameters:
-(playerid, reason)
 playerid	The ID of the player that disconnected.
 reason		The reason for the disconnection. See table below.
 
@@ -279,10 +275,70 @@ Description:
 This callback is called when a player dies, either by suicide or by being killed by another player.
 
 Parameters:
-(playerid, killerid, reason)
 playerid	The ID of the player that died.
 killerid	The ID of the player that killed the player who died, or INVALID_PLAYER_ID if there was none.
-reason		The ID of the reason for the player's death.
+reason		The ID of the reason for the player's death. See table below
+
+Reasons:
+
+Name				Definition				ID				Slot			Model			Notes
+
+Fist				-						0				0				-
+Brass Knuckles		WEAPON_BRASSKNUCKLE		1				0				331
+Golf Club			WEAPON_GOLFCLUB			2				1				333
+Nightstick			WEAPON_NITESTICK		3				1				334
+Knife				WEAPON_KNIFE			4				1				335				Can de-sync players when their throat is cut (they appear dead to other players)
+Baseball Bat		WEAPON_BAT				5				1				336
+Shovel				WEAPON_SHOVEL			6				1				337
+Pool Cue			WEAPON_POOLSTICK		7				1				338
+Katana				WEAPON_KATANA			8				1				339				Can not decapitate players (like in single-player)
+Chainsaw			WEAPON_CHAINSAW			9				1				341
+Purple Dildo		WEAPON_DILDO			10				10				321
+Dildo				WEAPON_DILDO2			11				10				322
+Vibrator			WEAPON_VIBRATOR			12				10				323
+Silver Vibrator		WEAPON_VIBRATOR2		13				10				324
+Flowers 			WEAPON_FLOWER			14				10				325
+Cane				WEAPON_CANE				15				10				326
+Grenade				WEAPON_GRENADE			16				8				342				Does not produce fire
+Tear Gas 			WEAPON_TEARGAS			17				8				343				The coughing effect is disabled in SA-MP
+Molotov Cocktail	WEAPON_MOLTOV			18				8				344				Produces fire
+9mm					WEAPON_COLT45			22				2				346				Skill can be set with SetPlayerSkillLevel
+Silenced 9mm		WEAPON_SILENCED			23				2				347				Skill can be set with SetPlayerSkillLevel
+Desert Eagle		WEAPON_DEAGLE			24				2				348				Skill can be set with SetPlayerSkillLevel
+Shotgun 			WEAPON_SHOTGUN			25				3				349				Skill can be set with SetPlayerSkillLevel
+Sawnoff Shotgun		WEAPON_SAWEDOFF			26				3				350				Skill can be set with SetPlayerSkillLevel
+Combat Shotgun		WEAPON_SHOTGSPA			27				3				351				Skill can be set with SetPlayerSkillLevel
+Micro SMG/Uzi 		WEAPON_UZI				28				4				352				Skill can be set with SetPlayerSkillLevel
+MP5					WEAPON_MP5				29				4				353				Skill can be set with SetPlayerSkillLevel
+AK-47	 			WEAPON_AK47				30				5				355				Skill can be set with SetPlayerSkillLevel
+M4					WEAPON_M4				31				5				356				Skill can be set with SetPlayerSkillLevel
+Tec-9				WEAPON_TEC9				32				4				372				Skill can be set with SetPlayerSkillLevel
+Country Rifle		WEAPON_RIFLE			33				6				357				Skill can be set with SetPlayerSkillLevel
+Sniper Rifle		WEAPON_SNIPER			34				6				358				Skill can be set with SetPlayerSkillLevel
+RPG					WEAPON_ROCKETLAUNCHER	35				7				359
+HS Rocket			WEAPON_HEATSEEKER		36				7				360				Lock-on is not synced
+Flamethrower		WEAPON_FLAMETHROWER		37				7				361
+Minigun				WEAPON_MINIGUN			38				7				362
+Satchel Charge		WEAPON_SATCHEL			39				8				363				Only synced for players that were streamed-in when the satchels were thrown
+Detonator			WEAPON_BOMB				40				12				364				Given automatically when players throw a satchel charge (omit from anti-cheat checks)
+Spraycan			WEAPON_SPRAYCAN			41				9				365				Players that are sprayed choke
+Fire Extinguisher	WEAPON_FIREEXTINGUISHER	42				9				366				Players that are sprayed choke
+Camera				WEAPON_CAMERA			43				9				367				Saves photos to player's gallery if enabled via pause menu (My Documents\GTA San Andreas User Files\Gallery)
+Night Vis Goggles	-						44				11				368				Visual effects show for all players (fix available)
+Thermal Goggles		-						45				11				369				Visual effects show for all players (fix available
+Parachute			WEAPON_PARACHUTE		46				11				371				Players will die if teleported while diving with a parachute (can be fixed using ResetPlayerWeapons). Parachutes are given when bailing out of aircraft. (omit from anti-cheat checks)
+Cellphone			-						-				-				-				Cut from the game.
+Jetpack				-						-				-				370				Doesn't work as a weapon. See SetPlayerSpecialAction.
+Skateboard			-						-				-				-				Cut from the game.
+Fake Pistol			-						47				N/A				N/A				?
+Vehicle				WEAPON_VEHICLE			49				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
+Helicopter Blades	-						50				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
+Explosion			-						51				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
+Drowned				WEAPON_DROWN			53				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
+Splat 				WEAPON_COLLISION		54				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
+Connect				-						200				N/A				N/A				Only usable in SendDeathMessage
+Disconnect			-						201				N/A				N/A				Only usable in SendDeathMessage
+Suicide 			-						255				N/A				N/A				Only a death icon, can not be used in GivePlayerWeapon etc.
 
 Return Values:
 This callback does not handle returns.
@@ -308,7 +364,6 @@ Description:
 Called when a player sends a chat message.
 
 Parameters:
-(playerid, text)
 playerid	The ID of the player who typed the text.
 text[]		The text the player typed.
 
@@ -338,7 +393,6 @@ Description:
 This callback is called when a player starts to exit a vehicle.
 
 Parameters:
-(playerid, vehicleid)
 playerid	The ID of the player that is exiting a vehicle.
 vehicleid	The ID of the vehicle the player is exiting.
 
@@ -359,7 +413,6 @@ Description:
 This callback is called when a player changes state. For example, when a player changes from being the driver of a vehicle to being on-foot.
 
 Parameters:
-(playerid, newstate, oldstate)
 playerid	The ID of the player that changed state.
 newstate	The player's new state.
 oldstate	The player's previous state.
@@ -1687,7 +1740,7 @@ logEnteringVehicle(playerid, seat, vehicleid, modelid)
 	return 1;
 }
 
-logPlayerLocation(playerid)
+public logPlayerLocation(playerid)
 {
 	new name[MAX_PLAYER_NAME];
 	name = getName(playerid);
@@ -2053,18 +2106,6 @@ showLogIds(playerid)
 	SendClientMessage(playerid, DEFAULT_MESSAGE_COLOR, "12 = CarExitLogging");
 }
 
-//PUBLICS (non-default)
-forward LogLoc(playerid);
-public LogLoc(playerid)
-{
-	if(positionLogging)
-	{
-		logPlayerLocation(playerid);
-	}
-	return 1;
-}
-
-forward versionCheckResponse(index, response_code, data[]);
 public versionCheckResponse(index, response_code, data[])
 {
 	new VERSION = 140; //I suggest not to touch this ;D
